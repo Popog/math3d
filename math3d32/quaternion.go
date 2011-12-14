@@ -12,14 +12,14 @@ import "fmt"
 import "math"
 
 // This is a 4 element vector float32
-type Quaternion []float32
+type Quaternion [4]float32
 
 func MakeQuaternion(s, x, y, z float32) Quaternion {
-	return Quaternion{s, x, y, z}[:]
+	return Quaternion{s, x, y, z}
 }
 
 func MakeQuaternionV(v []float32) Quaternion {
-	return Quaternion{v[0], v[1], v[2], v[3]}[:]
+	return Quaternion{v[0], v[1], v[2], v[3]}
 }
 
 func MakeQuaternionM(rotationMatrix Matrix4) Quaternion {
@@ -34,20 +34,7 @@ func MakeQFromAxisAngle(axis Vector3, angle float32) Quaternion {
 
 	halfAngle := 0.5 * angle
 	sn := Sinf(halfAngle)
-	return Quaternion{Cosf(halfAngle), sn * axis[0], sn * axis[1], sn * axis[2]}[:]
-}
-
-func (q Quaternion) Copy() Quaternion {
-	return Quaternion{q[0], q[1], q[2], q[3]}[:]
-}
-
-func MakeQuaternionCopy(q Quaternion) Quaternion {
-	return Quaternion{q[0], q[1], q[2], q[3]}[:]
-}
-
-// Will copy the values of p into q
-func (q Quaternion) CopyFrom(p Quaternion) Quaternion {
-	return Quaternion{q[0], q[1], q[2], q[3]}[:]
+	return Quaternion{Cosf(halfAngle), sn * axis[0], sn * axis[1], sn * axis[2]}
 }
 
 func (q Quaternion) W() *float32 {
@@ -70,16 +57,12 @@ func (m Quaternion) Equal(q Quaternion) bool {
 	return m[0] == q[0] && m[1] == q[1] && m[2] == q[2] && m[3] == q[3]
 }
 
-func (m Quaternion) NotEqual(q Quaternion) bool {
-	return m[0] != q[0] || m[1] != q[1] || m[2] != q[2] || m[3] == q[3]
-}
-
 func (m Quaternion) AddQ(q Quaternion) Quaternion {
-	return Quaternion{m[0] + q[0], m[1] + q[1], m[2] + q[2], m[3] + q[3]}[:]
+	return Quaternion{m[0] + q[0], m[1] + q[1], m[2] + q[2], m[3] + q[3]}
 }
 
 func (m Quaternion) SubtractQ(q Quaternion) Quaternion {
-	return Quaternion{m[0] - q[0], m[1] - q[1], m[2] - q[2], m[3] - q[3]}[:]
+	return Quaternion{m[0] - q[0], m[1] - q[1], m[2] - q[2], m[3] - q[3]}
 }
 
 func (m Quaternion) MultiplyQ(q Quaternion) Quaternion {
@@ -87,22 +70,22 @@ func (m Quaternion) MultiplyQ(q Quaternion) Quaternion {
 		m[0]*q[0] - m[1]*q[1] - m[2]*q[2] - m[3]*q[3],
 		m[0]*q[1] + m[1]*q[0] + m[2]*q[3] - m[3]*q[2],
 		m[0]*q[2] + m[2]*q[0] + m[3]*q[1] - m[1]*q[3],
-		m[0]*q[3] + m[3]*q[0] + m[1]*q[2] - m[2]*q[1]}[:]
+		m[0]*q[3] + m[3]*q[0] + m[1]*q[2] - m[2]*q[1]}
 }
 
 func (m Quaternion) MultiplyS(scalar float32) Quaternion {
-	return Quaternion{m[0] * scalar, m[1] * scalar, m[2] * scalar, m[3] * scalar}[:]
+	return Quaternion{m[0] * scalar, m[1] * scalar, m[2] * scalar, m[3] * scalar}
 }
 
 func (m Quaternion) DivS(scalar float32) Quaternion {
 	if scalar != 0 {
-		return Quaternion{m[0] / scalar, m[1] / scalar, m[2] / scalar, m[3] / scalar}[:]
+		return Quaternion{m[0] / scalar, m[1] / scalar, m[2] / scalar, m[3] / scalar}
 	}
-	return Quaternion{math.MaxFloat32, math.MaxFloat32, math.MaxFloat32, math.MaxFloat32}[:]
+	return Quaternion{math.MaxFloat32, math.MaxFloat32, math.MaxFloat32, math.MaxFloat32}
 }
 
 func (m Quaternion) Conjugate() Quaternion {
-	return Quaternion{m[0], -m[1], -m[2], -m[3]}[:]
+	return Quaternion{m[0], -m[1], -m[2], -m[3]}
 }
 
 func (m Quaternion) Magnitude() float32 {
@@ -127,7 +110,7 @@ func (m Quaternion) ToRotationMatrix() Matrix4 {
 		1. - (twoYY + twoZZ), twoXY + twoWZ, twoXZ - twoWY, 0.,
 		twoXY - twoWZ, 1. - (twoXX + twoZZ), twoYZ + twoWX, 0.,
 		twoXZ + twoWY, twoYZ - twoWX, 1. - (twoXX + twoYY), 0.,
-		0., 0., 0., 1.}[:]
+		0., 0., 0., 1.}
 }
 
 func (m Quaternion) FromAxisAngle(axis Vector3, angle float32) Quaternion {
@@ -156,11 +139,11 @@ func (m Quaternion) ToAxisAngle() (axis Vector3, angle float32) {
 		angle = 2. * Acosf(m[0])
 		//invLength = math.InvSqrt(sqrLength);
 		invLength := 1. / Sqrtf(sqrLength)
-		axis = Vector3{m[1] * invLength, m[2] * invLength, m[3] * invLength}[:]
+		axis = Vector3{m[1] * invLength, m[2] * invLength, m[3] * invLength}
 	} else {
 		// Angle is 0 (mod 2*pi), so any axis will do.
 		angle = 0.
-		axis = Vector3{1, 0, 0}[:]
+		axis = Vector3{1, 0, 0}
 	}
 	return axis, angle
 }
@@ -203,7 +186,7 @@ func (q1 Quaternion) Dot(q2 Quaternion) float32 {
 // Spherical linear interpolation.
 // t is the interpolation value from 0. to 1.
 // p and q are 'const'. m is *not*
-func (m Quaternion) Slerp(t float32, p, q Quaternion) Quaternion {
+func Slerp(t float32, p, q Quaternion) (r Quaternion) {
 
 	cs := p.Dot(q)
 	angle := Acosf(cs)
@@ -215,18 +198,17 @@ func (m Quaternion) Slerp(t float32, p, q Quaternion) Quaternion {
 		coeff0 := Sinf(angle-tAngle) * invSn
 		coeff1 := Sinf(tAngle) * invSn
 
-		m[0] = float32(coeff0*p[0] + coeff1*q[0])
-		m[1] = float32(coeff0*p[1] + coeff1*q[1])
-		m[2] = float32(coeff0*p[2] + coeff1*q[2])
-		m[3] = float32(coeff0*p[3] + coeff1*q[3])
+		r[0] = float32(coeff0*p[0] + coeff1*q[0])
+		r[1] = float32(coeff0*p[1] + coeff1*q[1])
+		r[2] = float32(coeff0*p[2] + coeff1*q[2])
+		r[3] = float32(coeff0*p[3] + coeff1*q[3])
 	} else {
-		m[0] = p[0]
-		m[1] = p[1]
-		m[2] = p[2]
-		m[3] = p[3]
+		r[0] = p[0]
+		r[1] = p[1]
+		r[2] = p[2]
+		r[3] = p[3]
 	}
-
-	return m
+	return
 }
 
 // ------------------------------------

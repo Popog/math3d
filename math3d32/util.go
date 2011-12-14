@@ -41,7 +41,7 @@ func Acosf(a float32) float32 {
 }
 
 func Fabsf(a float32) float32 {
-	return float32(math.Fabs(float64(a)))
+	return float32(math.Abs(float64(a)))
 }
 
 // Signbit returns true if x is negative or negative zero.
