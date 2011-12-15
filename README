@@ -1,13 +1,10 @@
 This is a linear algebra library for the Go programming language (http://golang.org)
 It is intended for use with OpenGl. It only implements fixed size vectors and matrixes. 
 
-This an incomplete port of the linear algebra library WildMagic5 (geometrictools.com)
-
 This library comes in two flavours: math3d/math3d64 using float64 and math3d/math3d32 using float32.
 
-Note that this code uses column major matrixes.
+Note that this code uses row major matrixes.
 
 Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
-http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 

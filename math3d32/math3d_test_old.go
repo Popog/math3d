@@ -1,9 +1,7 @@
 /*
-This code is an incomplete port of the C++ algebra library WildMagic5 (geometrictools.com)
-Note that this code uses column major matrixes, just like OpenGl
+Note that this code uses row major matrixes
 Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
-http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 */
 
 package math3d32

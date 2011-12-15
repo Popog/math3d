@@ -1,9 +1,7 @@
 /*
-This code is an incomplete port of the C++ algebra library WildMagic5 (geometrictools.com)
-Note that this code uses column major matrixes, just like OpenGl
+Note that this code uses row major matrixes
 Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
-http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 */
 
 package math3d32
@@ -80,11 +78,11 @@ func Test_4Approximates1(t *testing.T) {
 
 func Test_4Approximates2(t *testing.T) {
 	B := makeB()
-	b := makeB().MulS(1.0 + ε4d/2)
+	b := makeB().ScalarMultiply(1.0 + ε4d/2)
 	C := makeC()
-	c := makeC().MulS(1.0 + ε4d/2)
+	c := makeC().ScalarMultiply(1.0 + ε4d/2)
 	D := makeD()
-	d := makeD().MulS(1.0 + ε4d/2)
+	d := makeD().ScalarMultiply(1.0 + ε4d/2)
 
 	if !B.ApproxEquals(b, ε4d) {
 		fmt.Println(B)
@@ -168,7 +166,7 @@ func Test_4Mutiply0(t *testing.T) {
 	C := makeC()
 	ci := makeC().Inverse()
 
-	a := A.MultiplyM(ai)
+	a := A.RightMultiply(ai)
 	if !I.ApproxEquals(a, ε4d) {
 		fmt.Println("a=", A)
 		fmt.Println("det(a)=", da)
@@ -176,13 +174,13 @@ func Test_4Mutiply0(t *testing.T) {
 		fmt.Println("I=", a)
 		t.Fail()
 	}
-	b := B.MultiplyM(bi)
+	b := B.RightMultiply(bi)
 	if !I.ApproxEquals(b, ε4d) {
 		fmt.Println("b", b)
 		fmt.Println("I", I)
 		t.Fail()
 	}
-	c := C.MultiplyM(ci)
+	c := C.RightMultiply(ci)
 	if !I.ApproxEquals(c, ε4d) {
 		fmt.Println("c", c)
 		fmt.Println("i", I)
@@ -199,7 +197,7 @@ func Test_4Mutiply2(t *testing.T) {
 	C := makeC()
 	ci := makeC().Inverse()
 
-	a := A.MultiplyM(B).MultiplyM(C).MultiplyM(ci).MultiplyM(bi)
+	a := A.RightMultiply(B).RightMultiply(C).RightMultiply(ci).RightMultiply(bi)
 	if !A.ApproxEquals(a, ε4d) {
 		fmt.Println("a=", A)
 		fmt.Println("det(a)=", da)
@@ -213,21 +211,13 @@ func Test_4Copy1(t *testing.T) {
 	for i := 0; i < len(a4Array); i++ {
 		A := MakeMatrix4V(a4Array[i], true)
 		//fmt.Println("A",A)
-		a := A.Copy()
+		a := A
 		//fmt.Println("a",a)
 		for j := 0; j < 16; j++ {
 			a[j] = a[j] * 0.001
 		}
 		if A.ApproxEquals(a, ε4d) {
 			fmt.Println("failed to copy 'A'. changes to the copy modifies original. (ApproxEquals)")
-			fmt.Println("A	 =", A)
-			fmt.Println("copy=", a)
-			fmt.Println()
-			t.Fail()
-		}
-		// test NotEqual while we're at it
-		if !a.NotEqual(A) {
-			fmt.Println("failed to copy 'A'. changes to the copy modifies original. (!NotEqual())")
 			fmt.Println("A	 =", A)
 			fmt.Println("copy=", a)
 			fmt.Println()
@@ -250,8 +240,8 @@ func Test_4Inv1(t *testing.T) {
 		B := MakeMatrix4V(b4Array[i], true)
 		AI := MakeMatrix4V(aI4Array[i], true)
 		BI := MakeMatrix4V(bI4Array[i], true)
-		ai := A.Copy().Inverse()
-		bi := B.Copy().Inverse()
+		ai := A.Inverse()
+		bi := B.Inverse()
 		if !AI.ApproxEquals(ai, ε4d) {
 			fmt.Println("failed to inverse 'A'. Expected result as 'AI', got 'ai'")
 			fmt.Println("A	=", A)
@@ -282,14 +272,6 @@ func Test_4Transpose3(t *testing.T) {
 			fmt.Println()
 			t.Fail()
 		}
-		// test NotEqual while we're at it
-		if att.NotEqual(A) {
-			fmt.Println("failed to double transpose 'A'. Expected result as 'A', got 'att'")
-			fmt.Println("A	=", A)
-			fmt.Println("att=", att)
-			fmt.Println()
-			t.Fail()
-		}
 	}
 }
 
@@ -309,15 +291,6 @@ func Test_4Transpose4(t *testing.T) {
 			fmt.Println()
 			t.Fail()
 		}
-		// test NotEqual while we're at it
-		if at.NotEqual(AT) {
-			fmt.Println("failed to transpose 'A'. Expected result as 'AT', got 'at' (NotEqual)")
-			fmt.Println("A	=", A)
-			fmt.Println("AT	=", AT)
-			fmt.Println("at	=", at)
-			fmt.Println()
-			t.Fail()
-		}
 	}
 }
 
@@ -327,9 +300,9 @@ func Test_4Transpose5(t *testing.T) {
 		at := A.Transpose()
 		B := MakeMatrix4V(b4Array[i], false)
 		bt := B.Transpose()
-		btat := bt.Copy().MultiplyM(at)
+		btat := bt.RightMultiply(at)
 		P := MakeMatrix4V(p4Array[i], false)
-		pt := P.Copy().Transpose()
+		pt := P.Transpose()
 		if !pt.ApproxEquals(btat, ε4d) {
 			fmt.Println("failed to transpose and multiply 'Bt*At'. Expected result as 'Pt', got 'btat'")
 			fmt.Println("A\t=", A)
@@ -347,7 +320,7 @@ func Test_4Mutiply1(t *testing.T) {
 		A := MakeMatrix4V(a4Array[i], false)
 		B := MakeMatrix4V(b4Array[i], false)
 		P := MakeMatrix4V(p4Array[i], false)
-		p := A.Copy().MultiplyM(B)
+		p := A.RightMultiply(B)
 		if !P.ApproxEquals(p, ε4d) {
 			fmt.Println("failed to multiply 'A*B'. Expected result as 'P', got 'p'")
 			fmt.Println("A	=", A)
@@ -367,13 +340,13 @@ func Test_4Mutiply3(t *testing.T) {
 		A := MakeMatrix4V(a4Array[i], false)
 		B := MakeMatrix4V(b4Array[i], false)
 		at := A.Transpose()
-		ati := at.Copy().Inverse()
+		ati := at.Inverse()
 		bt := B.Transpose()
-		bti := bt.Copy().Inverse()
-		ai := A.Copy().Inverse()
-		bi := B.Copy().Inverse()
+		bti := bt.Inverse()
+		ai := A.Inverse()
+		bi := B.Inverse()
 
-		p := A.Copy().MultiplyM(B).MultiplyM(at).MultiplyM(bt).MultiplyM(bti).MultiplyM(ati).MultiplyM(bi).MultiplyM(ai)
+		p := A.RightMultiply(B).RightMultiply(at).RightMultiply(bt).RightMultiply(bti).RightMultiply(ati).RightMultiply(bi).RightMultiply(ai)
 
 		// Allow the ε to be larger, we're multiplying a long chain of matrixes
 		if !I.ApproxEquals(p, ε4d*100) {
@@ -498,7 +471,7 @@ func Test_4Quat3(t *testing.T) {
 	}
 
 	v0 := MakeVector4(1., 0, 0, 0.)
-	r1 := v0.Copy().MultiplyM(m)
+	r1 := m.MultiplyV(v0)
 	R1 := MakeVector4(-0.666667, 0.133333, 0.733333, 0.000000)
 
 	if !r1.ApproxEquals(R1, ε4d) {
@@ -529,7 +502,7 @@ func Test_4VectorMul_1(t *testing.T) {
 		V1 := MakeVector4V(v14Array[i])
 		V1 = V1.Add(V1)
 
-		v1 := v0.MultiplyM(M)
+		v1 := M.MultiplyV(v0)
 
 		if !v1.ApproxEquals(V1, ε3d) {
 			fmt.Println("failed to multiply 'V0' with 'M', Expected result as 'V1', got 'v1'")

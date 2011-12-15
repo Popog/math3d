@@ -1,9 +1,7 @@
 /*
-This code is an incomplete port of the C++ algebra library WildMagic5 (geometrictools.com)
-Note that this code uses column major matrixes, just like OpenGl
+Note that this code uses row major matrixes
 Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
-http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 */
 
 package math3d32
@@ -11,30 +9,35 @@ package math3d32
 import "fmt"
 //import "math"
 
-// This is a 4x4 matrix of float32, stored in OpenGl format. Note - it's not rowmajor
-type Matrix4 [4*4]float32
+// This is a 4x4 matrix of Float, stored in row major
+type Matrix4 [4*4]Float
 
-func MakeMatrix4V(v []float32, rowMajor bool) (r Matrix4) {
+// Make a new matrix from the array
+func MakeMatrix4V(v []Float, rowMajor bool) (r Matrix4) {
 	for i := 0; i < len(r); i++ { r[i] = v[i] }
 	// transform the data to OpenGl format
 	if !rowMajor { r.TransposeThis() }
 	return
 }
+
+// Set the current matrix to be a zero matrix
 func (m *Matrix4) ZeroThis() {
 	*m = Matrix4{}
 }
-func (m *Matrix4) IdentityThis() {
-	m.ZeroThis()
-	for i := 0; i < 4; i++ { m[i*4 + i] = 1 }
-}
+
+// Create a new identity matrix
 func MakeMatrix4Identity() (m Matrix4) {
-	m.IdentityThis()
+	const size = 3
+	for i := 0; i < size; i++ { m[i*size + i] = 1 }
 	return
 }
 
-/*
-untested code
-*/
+// Set the current matrix to be an identity matrix
+func (m *Matrix4) IdentityThis() {
+	*m = MakeMatrix4Identity()
+}
+
+// untested code
 func MakeRotationMatrix(look, tmpUp Vector3) Matrix4 {
 
 	look = look.Normalize()
@@ -48,56 +51,34 @@ func MakeRotationMatrix(look, tmpUp Vector3) Matrix4 {
 		0., 0., 0., 1}
 }
 
-func (m Matrix4) Copy() Matrix4 {
-	return Matrix4{m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9], m[10], m[11], m[12], m[13], m[14], m[15]}
+
+// d8888b. d8888b.  .d88b.  d8888b. d88888b d8888b. d888888b db    db      d888b  d88888b d888888b d888888b d88888b d8888b. .d8888. 
+// 88  `8D 88  `8D .8P  Y8. 88  `8D 88'     88  `8D `~~88~~' `8b  d8'     88' Y8b 88'     `~~88~~' `~~88~~' 88'     88  `8D 88'  YP 
+// 88oodD' 88oobY' 88    88 88oodD' 88ooooo 88oobY'    88     `8bd8'      88      88ooooo    88       88    88ooooo 88oobY' `8bo.   
+// 88~~~   88`8b   88    88 88~~~   88~~~~~ 88`8b      88       88        88  ooo 88~~~~~    88       88    88~~~~~ 88`8b     `Y8b. 
+// 88      88 `88. `8b  d8' 88      88.     88 `88.    88       88        88. ~8~ 88.        88       88    88.     88 `88. db   8D 
+// 88      88   YD  `Y88P'  88      Y88888P 88   YD    YP       YP         Y888P  Y88888P    YP       YP    Y88888P 88   YD `8888Y' 
+
+// Returns a row as a vector
+func (m Matrix4) GetRow(row int) (r Vector4) {
+	for i := 0; i < len(r); i++ { r[i] = m.At(row, i) }
+	return
 }
 
-func (m Matrix4) MulS(scalar float32) Matrix4 {
-	s := scalar
-	return Matrix4{m[0] * s, m[1] * s, m[2] * s, m[3] * s, m[4] * s, m[5] * s, m[6] * s, m[7] * s, m[8] * s, m[9] * s, m[10] * s, m[11] * s, m[12] * s, m[13] * s, m[14] * s, m[15] * s}
+// Returns a column as a vector
+func (m Matrix4) GetCol(col int) (r Vector4) {
+	for i := 0; i < len(r); i++ { r[i] = m.At(i, col) }
+	return
 }
 
-// Mutiply this matrix with a column vector v, resulting in another column vector
-func (m Matrix4) MulV(v Vector4) Vector4 {
-	return Vector4{
-		m[0]*v[0] + m[4]*v[1] + m[8]*v[2] + m[12]*v[3],
-		m[1]*v[0] + m[5]*v[1] + m[9]*v[2] + m[13]*v[3],
-		m[2]*v[0] + m[6]*v[1] + m[10]*v[2] + m[14]*v[3],
-		m[3]*v[0] + m[7]*v[1] + m[11]*v[2] + m[15]*v[3]}
+// Returns the element at row,col
+func (m Matrix4) At(row, col int) Float {
+	const size = 4
+	return m[row*size+col]
 }
 
-func (m Matrix4) DivS(scalar float32) Matrix4 {
-	s := 1.0 / scalar
-	return Matrix4{m[0] * s, m[1] * s, m[2] * s, m[3] * s, m[4] * s, m[5] * s, m[6] * s, m[7] * s, m[8] * s, m[9] * s, m[10] * s, m[11] * s, m[12] * s, m[13] * s, m[14] * s, m[15] * s}
-}
-
-func (m Matrix4) Plus(q Matrix4) Matrix4 {
-	return Matrix4{m[0] + q[0], m[1] + q[1], m[2] + q[2], m[3] + q[3], m[4] + q[4], m[5] + q[5], m[6] + q[6], m[7] + q[7], m[8] + q[8],
-		m[9] + q[9], m[10] + q[10], m[11] + q[11], m[12] + q[12], m[13] + q[13], m[14] + q[14], m[15] + q[15]}
-}
-
-func (m Matrix4) Sub(q Matrix4) Matrix4 {
-	return Matrix4{m[0] - q[0], m[1] - q[1], m[2] - q[2], m[3] - q[3], m[4] - q[4], m[5] - q[5], m[6] - q[6], m[7] - q[7], m[8] - q[8],
-		m[9] - q[9], m[10] - q[10], m[11] - q[11], m[12] - q[12], m[13] - q[13], m[14] - q[14], m[15] - q[15]}
-}
-
-func (m Matrix4) MakeZero() Matrix4 {
-	m[0],m[1],m[2],m[3] = 0,0,0,0
-	m[4],m[5],m[6],m[7] = 0,0,0,0
-	m[8],m[9],m[10],m[11] = 0,0,0,0
-	m[12],m[13],m[14],m[15] = 0,0,0,0
-	return m
-}
-
-func (m Matrix4) MakeIdentity() Matrix4 {
-	m[0],m[1],m[2],m[3] = 1,0,0,0
-	m[4],m[5],m[6],m[7] = 0,1,0,0
-	m[8],m[9],m[10],m[11] = 0,0,1,0
-	m[12],m[13],m[14],m[15] = 0,0,0,1
-	return m
-}
-
-func (m Matrix4) Determinant() float32 {
+// Gets the determinant 
+func (m Matrix4) Determinant() Float {
 	a0 := m[0]*m[5] - m[4]*m[1]
 	a1 := m[0]*m[9] - m[8]*m[1]
 	a2 := m[0]*m[13] - m[12]*m[1]
@@ -111,44 +92,6 @@ func (m Matrix4) Determinant() float32 {
 	b4 := m[6]*m[15] - m[14]*m[7]
 	b5 := m[10]*m[15] - m[14]*m[11]
 	return a0*b5 - a1*b4 + a2*b3 + a3*b2 - a4*b1 + a5*b0
-}
-
-func (m Matrix4) Inverse() Matrix4 {
-	a0 := m[0]*m[5] - m[4]*m[1]
-	a1 := m[0]*m[9] - m[8]*m[1]
-	a2 := m[0]*m[13] - m[12]*m[1]
-	a3 := m[4]*m[9] - m[8]*m[5]
-	a4 := m[4]*m[13] - m[12]*m[5]
-	a5 := m[8]*m[13] - m[12]*m[9]
-	b0 := m[2]*m[7] - m[6]*m[3]
-	b1 := m[2]*m[11] - m[10]*m[3]
-	b2 := m[2]*m[15] - m[14]*m[3]
-	b3 := m[6]*m[11] - m[10]*m[7]
-	b4 := m[6]*m[15] - m[14]*m[7]
-	b5 := m[10]*m[15] - m[14]*m[11]
-	det := a0*b5 - a1*b4 + a2*b3 + a3*b2 - a4*b1 + a5*b0
-	if Fabsf(det) <= internalε {
-		// Todo: fix this. Maybe a ",ok" return value?
-		panic("Determinant is zero ")
-	}
-	id := 1. / det
-	return Matrix4{
-		id * (+m[5]*b5 - m[9]*b4 + m[13]*b3),
-		id * (-m[1]*b5 + m[9]*b2 - m[13]*b1),
-		id * (+m[1]*b4 - m[5]*b2 + m[13]*b0),
-		id * (-m[1]*b3 + m[5]*b1 - m[9]*b0),
-		id * (-m[4]*b5 + m[8]*b4 - m[12]*b3),
-		id * (+m[0]*b5 - m[8]*b2 + m[12]*b1),
-		id * (-m[0]*b4 + m[4]*b2 - m[12]*b0),
-		id * (+m[0]*b3 - m[4]*b1 + m[8]*b0),
-		id * (+m[7]*a5 - m[11]*a4 + m[15]*a3),
-		id * (-m[3]*a5 + m[11]*a2 - m[15]*a1),
-		id * (+m[3]*a4 - m[7]*a2 + m[15]*a0),
-		id * (-m[3]*a3 + m[7]*a1 - m[11]*a0),
-		id * (-m[6]*a5 + m[10]*a4 - m[14]*a3),
-		id * (+m[2]*a5 - m[10]*a2 + m[14]*a1),
-		id * (-m[2]*a4 + m[6]*a2 - m[14]*a0),
-		id * (+m[2]*a3 - m[6]*a1 + m[10]*a0)}
 }
 
 // Todo - fixme
@@ -165,84 +108,159 @@ func (m Matrix4) Cofactor() (r Matrix4) {
 	return
 }
 
-func (m Matrix4) Equal(q Matrix4) bool {
-	return m[0] == q[0] && m[1] == q[1] && m[2] == q[2] && m[3] == q[3] && m[4] == q[4] && m[5] == q[5] &&
-		m[6] == q[6] && m[7] == q[7] && m[8] == q[8] && m[9] == q[9] && m[10] == q[10] && m[11] == q[11] &&
-		m[12] == q[12] && m[13] == q[13] && m[14] == q[14] && m[15] == q[15]
-
-}
-
-func (m Matrix4) NotEqual(q Matrix4) bool {
-	return m[0] != q[0] || m[1] != q[1] || m[2] != q[2] || m[3] != q[3] || m[4] != q[4] || m[5] != q[5] ||
-		m[6] != q[6] || m[7] != q[7] || m[8] != q[8] || m[9] != q[9] || m[10] != q[10] || m[11] != q[11] ||
-		m[12] != q[12] || m[13] != q[13] || m[14] != q[14] || m[15] != q[15]
-}
-
-// Mutiply this matrix with a column vector v, resulting in another column vector
-func (m Matrix4) MultiplyV(v Vector4) Vector4 {
-	return Vector4{
-		m[0]*v[0] + m[1]*v[1] + m[2]*v[2] + m[3]*v[3],
-		m[4]*v[0] + m[5]*v[1] + m[6]*v[2] + m[7]*v[3],
-		m[8]*v[0] + m[9]*v[1] + m[10]*v[2] + m[11]*v[3],
-		m[12]*v[0] + m[13]*v[1] + m[14]*v[2] + m[15]*v[3]}
-}
-
-func (m Matrix4) MultiplyM(q Matrix4) (r Matrix4) {
-	r[0] = q[0]*m[0] + q[1]*m[4] + q[2]*m[8] + q[3]*m[12]
-	r[1] = q[0]*m[1] + q[1]*m[5] + q[2]*m[9] + q[3]*m[13]
-	r[2] = q[0]*m[2] + q[1]*m[6] + q[2]*m[10] + q[3]*m[14]
-	r[3] = q[0]*m[3] + q[1]*m[7] + q[2]*m[11] + q[3]*m[15]
-	r[4] = q[4]*m[0] + q[5]*m[4] + q[6]*m[8] + q[7]*m[12]
-	r[5] = q[4]*m[1] + q[5]*m[5] + q[6]*m[9] + q[7]*m[13]
-	r[6] = q[4]*m[2] + q[5]*m[6] + q[6]*m[10] + q[7]*m[14]
-	r[7] = q[4]*m[3] + q[5]*m[7] + q[6]*m[11] + q[7]*m[15]
-	r[8] = q[8]*m[0] + q[9]*m[4] + q[10]*m[8] + q[11]*m[12]
-	r[9] = q[8]*m[1] + q[9]*m[5] + q[10]*m[9] + q[11]*m[13]
-	r[10] = q[8]*m[2] + q[9]*m[6] + q[10]*m[10] + q[11]*m[14]
-	r[11] = q[8]*m[3] + q[9]*m[7] + q[10]*m[11] + q[11]*m[15]
-	r[12] = q[12]*m[0] + q[13]*m[4] + q[14]*m[8] + q[15]*m[12]
-	r[13] = q[12]*m[1] + q[13]*m[5] + q[14]*m[9] + q[15]*m[13]
-	r[14] = q[12]*m[2] + q[13]*m[6] + q[14]*m[10] + q[15]*m[14]
-	r[15] = q[12]*m[3] + q[13]*m[7] + q[14]*m[11] + q[15]*m[15]
-	return
-}
-
-// Transposed will *not* modify m
-func (m Matrix4) Transpose() Matrix4 {
-
-	m[1], m[4], m[2], m[8] = m[4], m[1], m[8], m[2]
-	m[3], m[12], m[6], m[9] = m[12], m[3], m[9], m[6]
-	m[11], m[14], m[13], m[7] = m[14], m[11], m[7], m[13]
-
-	return m
-}
-func (m *Matrix4) TransposeThis() {
-	*m = m.Transpose()
-}
-
-/*
-Tests to see if the difference between two matrices,
-element-wise, exceeds ε.
-*/
-func (a Matrix4) ApproxEquals(b Matrix4, ε float32) bool {
-	for i := 0; i < 16; i++ {
-		delta := Fabsf(a[i] - b[i])
-		if delta > ε {
-			//fmt.Printf("delta between %f and %f is %f. ε=%f\n",a[i],b[i],delta,ε)
+// Tests to see if the difference between two matrices, element-wise, exceeds ε.
+func (m Matrix4) ApproxEquals(q Matrix4, ε Float) bool {
+	for i := 0; i < len(m); i++ {
+		if ApproxEquals(m[i], q[i], ε) {
 			return false
 		}
 	}
 	return true
 }
 
+func (m Matrix4) Equal(q Matrix4) bool {
+	for i := 0; i < len(m); i++ {
+		if(m[i] != q[i]) { return false }
+	}
+	return true
+	
+	// return m[0] == q[0] && m[1] == q[1] && m[2] == q[2] && m[3] == q[3] && m[4] == q[4] && m[5] == q[5] &&
+	// 	m[6] == q[6] && m[7] == q[7] && m[8] == q[8] && m[9] == q[9] && m[10] == q[10] && m[11] == q[11] &&
+	// 	m[12] == q[12] && m[13] == q[13] && m[14] == q[14] && m[15] == q[15]
+}
+
+func (m Matrix4) String() string {
+	// output in octave format for easy testing
+	return fmt.Sprintf("[%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f]",
+		m[ 0], m[ 1], m[ 2], m[3],
+		m[ 4], m[ 5], m[ 6], m[7],
+		m[ 8], m[ 9], m[10], m[11],
+		m[12], m[13], m[14], m[15])
+}
+
+
+
+func (m Matrix4) Inverse() Matrix4 {
+	a0 := m[ 0]*m[ 5] - m[ 4]*m[ 1]
+	a1 := m[ 0]*m[ 9] - m[ 8]*m[ 1]
+	a2 := m[ 0]*m[13] - m[12]*m[ 1]
+	a3 := m[ 4]*m[ 9] - m[ 8]*m[ 5]
+	a4 := m[ 4]*m[13] - m[12]*m[ 5]
+	a5 := m[ 8]*m[13] - m[12]*m[ 9]
+	b0 := m[ 2]*m[ 7] - m[ 6]*m[ 3]
+	b1 := m[ 2]*m[11] - m[10]*m[ 3]
+	b2 := m[ 2]*m[15] - m[14]*m[ 3]
+	b3 := m[ 6]*m[11] - m[10]*m[ 7]
+	b4 := m[ 6]*m[15] - m[14]*m[ 7]
+	b5 := m[10]*m[15] - m[14]*m[11]
+	det := a0*b5 - a1*b4 + a2*b3 + a3*b2 - a4*b1 + a5*b0
+	
+	id := 1. / det
+	return Matrix4{
+		id * (+m[5]*b5 - m[ 9]*b4 + m[13]*b3),
+		id * (-m[1]*b5 + m[ 9]*b2 - m[13]*b1),
+		id * (+m[1]*b4 - m[ 5]*b2 + m[13]*b0),
+		id * (-m[1]*b3 + m[ 5]*b1 - m[ 9]*b0),
+		id * (-m[4]*b5 + m[ 8]*b4 - m[12]*b3),
+		id * (+m[0]*b5 - m[ 8]*b2 + m[12]*b1),
+		id * (-m[0]*b4 + m[ 4]*b2 - m[12]*b0),
+		id * (+m[0]*b3 - m[ 4]*b1 + m[ 8]*b0),
+		id * (+m[7]*a5 - m[11]*a4 + m[15]*a3),
+		id * (-m[3]*a5 + m[11]*a2 - m[15]*a1),
+		id * (+m[3]*a4 - m[ 7]*a2 + m[15]*a0),
+		id * (-m[3]*a3 + m[ 7]*a1 - m[11]*a0),
+		id * (-m[6]*a5 + m[10]*a4 - m[14]*a3),
+		id * (+m[2]*a5 - m[10]*a2 + m[14]*a1),
+		id * (-m[2]*a4 + m[ 6]*a2 - m[14]*a0),
+		id * (+m[2]*a3 - m[ 6]*a1 + m[10]*a0)}
+}
+
+func (m *Matrix4) InverseThis() {
+	*m = m.Inverse()
+}
+
+// Return the transpose of matrix
+func (m Matrix4) Transpose() Matrix4 {
+	const size = 4
+	for r := 0; r < size; r++ {
+		for c := 0; c < r; c++ {
+			m[r*size + c], m[c*size + r] = m[c*size + r], m[r*size + c]
+		}
+	}
+	return m
+}
+
+// Transposes the matrix in-place
+func (m *Matrix4) TransposeThis() {
+	*m = m.Transpose()
+}
+
+func (m Matrix4) ScalarMultiply(scalar Float) Matrix4 {
+	for i := 0; i < len(m); i++ { m[i] *= scalar }
+	return m
+}
+
+func (m *Matrix4) ScalarMultiplyThis(scalar Float) {
+	*m = m.ScalarMultiply(scalar)
+}
+
+// Mutiply this matrix with a column vector v, resulting in another column vector
+func (m Matrix4) MultiplyV(v Vector4) (r Vector4) {
+	for i := 0; i < len(r); i++ { r[i] = m.GetRow(i).Dot(v) }
+	return
+}
+
+// Returns m * q
+func (m Matrix4) RightMultiply(q Matrix4) (result Matrix4) {
+	const size = 4
+	for r := 0; r < size; r++ {
+		for c := 0; c < size; c++ {
+			result[r*size + c] = m.GetRow(r).Dot(q.GetCol(c))
+		}
+	}
+	return
+}
+
+// return q * m (if for some reason you wanted that)
+func (m Matrix4) LeftMultiply(q Matrix4) (result Matrix4) {
+	const size = 4
+	for r := 0; r < size; r++ {
+		for c := 0; c < size; c++ {
+			result[r*size + c] = q.GetRow(r).Dot(m.GetCol(c))
+		}
+	}
+	return
+}
+
+
+func (m Matrix4) Add(q Matrix4) (r Matrix4) {
+	for i := 0; i < len(m); i++ { r[i] = m[i] + q[i] }
+	return
+}
+
+func (m *Matrix4) AddThis(q Matrix4) {
+	*m = m.Add(q)
+}
+
+func (m Matrix4) Sub(q Matrix4) (r Matrix4) {
+	for i := 0; i < len(m); i++ { r[i] = m[i] - q[i] }
+	return
+}
+
+func (m *Matrix4) SubThis(q Matrix4) {
+	*m = m.Sub(q)
+}
+
+
+
 /*
 // Orthogonalize will modify this matrix (fixme)
 func (m Matrix4) Orthogonalize(){
 	i := MakeVf(m[0],m[1],m[2])
 	j := MakeVf(m[3],m[4],m[5]) 
-	k := MakeVf(m[6],m[7],m[8]).Normalize();
+	k := MakeVf(m[6],m[7],m[8]).Normalize()
 	i = j.Cross(k).Normalize()
-	j=k.Cross(i);
+	j=k.Cross(i)
 	m[0]=i[0]; m[3]=j[0]; m[6]=k[0]
 	m[1]=i[3]; m[4]=j[3]; m[7]=k[3]
 	m[2]=i[6]; m[5]=j[6]; m[8]=k[6]
@@ -251,18 +269,11 @@ func (m Matrix4) Orthogonalize(){
 // Orthogonalize will not modify this matrix (fixme)
 func (m1 Matrix4) Orthogonalized() Matrix4{
 	m := m1.Copy()
-	m.Orthogonalize();
-	return m;
+	m.Orthogonalize()
+	return m
 }
 
 */
-
-/*
-Returns the element at row,col
-*/
-func (m Matrix4) at(row, col int) float32 {
-	return m[row+col*4]
-}
 
 func (m Matrix4) ToQuaternion() Quaternion {
 	// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
@@ -272,45 +283,36 @@ func (m Matrix4) ToQuaternion() Quaternion {
 	q := Quaternion{0,0,0,0}
 	//fmt.Println("q = ", q)
 	trace := m[0] + m[5] + m[10]
-	var root float32
+	var root Float
 	//fmt.Printf("trace = %f\n", trace)
 	if trace > 0. {
 		// |w| > 1/2, may as well choose w > 1/2
 		root = Sqrtf(trace + 1.0) // 2w
 		q[0] = 0.5 * root
 		root = 0.5 / root // 1/(4w)
-		q[1] = (m.at(2, 1) - m.at(1, 2)) * root
-		q[2] = (m.at(0, 2) - m.at(2, 0)) * root
-		q[3] = (m.at(1, 0) - m.at(0, 1)) * root
+		q[1] = (m.At(2, 1) - m.At(1, 2)) * root
+		q[2] = (m.At(0, 2) - m.At(2, 0)) * root
+		q[3] = (m.At(1, 0) - m.At(0, 1)) * root
 	} else {
 		// |w| <= 1/2
 		i := 0
-		if m.at(1, 1) > m.at(0, 0) {
+		if m.At(1, 1) > m.At(0, 0) {
 			i = 1
 		}
-		if m.at(2, 2) > m.at(i, i) {
+		if m.At(2, 2) > m.At(i, i) {
 			i = 2
 		}
 		j := toQuaternionNext[i]
 		k := toQuaternionNext[j]
 
-		root = Sqrtf(m.at(i, i) - m.at(j, j) - m.at(k, k) + 1.)
+		root = Sqrtf(m.At(i, i) - m.At(j, j) - m.At(k, k) + 1.)
 		quat := q[1:]
 		//fmt.Printf("Quat = [%f,%f,%f]\n", quat[0],quat[1],quat[2])
 		quat[i] = 0.5 * root
 		root = 0.5 / root
-		q[0] = (m.at(k, j) - m.at(j, k)) * root
-		quat[j] = (m.at(j, i) + m.at(i, j)) * root
-		quat[k] = (m.at(k, i) + m.at(i, k)) * root
+		q[0] = (m.At(k, j) - m.At(j, k)) * root
+		quat[j] = (m.At(j, i) + m.At(i, j)) * root
+		quat[k] = (m.At(k, i) + m.At(i, k)) * root
 	}
 	return q
-}
-
-func (m Matrix4) String() string {
-	// output in octave format for easy testing
-	return fmt.Sprintf("[%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f]",
-		m[0], m[4], m[8], m[12],
-		m[1], m[5], m[9], m[13],
-		m[2], m[6], m[10], m[14],
-		m[3], m[7], m[11], m[15])
 }
