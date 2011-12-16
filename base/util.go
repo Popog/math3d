@@ -9,12 +9,14 @@ package math3d32
 import "math"
 import "rand"
 
-type Float float32
 // Set these based on the type of Float
-const mantissaSize = 23
-type intType int32
+// const mantissaSize = 23, const mantissaSize = 52
+// const minInt = math.MinInt32, const minInt = math.MinInt64
+// Float -> float32, float64
+// intType -> int32, int64
+
+
 func floatBits(f Float) intType { return intType(math.Float32bits(float32(f))) }
-const minInt intType = math.MinInt32
 func Randf(r *rand.Rand) Float { return Float(rand.Float32()) }
 
 
