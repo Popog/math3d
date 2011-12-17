@@ -8,13 +8,13 @@ package math3d32
 
 import "fmt"
 
-type Vector4 [4]Float
+type Vector4 [4]floatType
 
-func MakeVector4V(v []Float) Vector4 {
+func MakeVector4V(v []floatType) Vector4 {
 	return Vector4{v[0], v[1], v[2], v[3]}
 }
 
-func MakeVector4(x, y, z, o Float) Vector4 {
+func MakeVector4(x, y, z, o floatType) Vector4 {
 	v := Vector4{x, y, z, o}
 	return v
 }
@@ -29,7 +29,7 @@ func (v1 Vector4) Sub(v2 Vector4) Vector4 {
 	return Vector4{v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2], v1[3] - v2[3]}
 }
 
-func (v1 Vector4) Dot(v2 Vector4) Float {
+func (v1 Vector4) Dot(v2 Vector4) floatType {
 	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]
 }
 
@@ -39,7 +39,7 @@ func (v1 Vector4) Cross(v2 Vector4) Vector4 {
 
 /*
 // For those cases when the 4d vector represents just a 3d vector. 4:t axis is ignored
-func (v1 Vector4) Dot3d(v2 Vector4) Float {
+func (v1 Vector4) Dot3d(v2 Vector4) floatType {
 	return v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2]
 }
 
@@ -51,14 +51,14 @@ func (v1 Vector4) Cross3d(v2 Vector4) Vector4 {
 
 // If two vectors represents points the distance between them can be calculated
 // Forth value is ignored
-func (v0 Vector4) Distance3d(v1 Vector4) Float {
+func (v0 Vector4) Distance3d(v1 Vector4) floatType {
 	d0 := v0[0] - v1[0]
 	d1 := v0[1] - v1[1]
 	d2 := v0[2] - v1[2]
 	return Sqrtf(d0*d0 + d1*d1 + d2*d2)
 }
 
-func (v Vector4) Length() Float {
+func (v Vector4) Length() floatType {
 	return Sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
 }
 
@@ -75,7 +75,7 @@ func (m Vector4) Equal(q Vector4) bool {
 	return m[0] == q[0] && m[1] == q[1] && m[2] == q[2] && m[3] == q[3]
 }
 
-func (a Vector4) ApproxEquals(b Vector4, ε Float) bool {
+func (a Vector4) ApproxEquals(b Vector4, ε floatType) bool {
 	for i := 0; i < 4; i++ {
 		if Fabsf(a[i]-b[i]) > ε {
 			return false

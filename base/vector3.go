@@ -8,9 +8,9 @@ package math3d32
 
 import "fmt"
 
-type Vector3 [3]Float
+type Vector3 [3]floatType
 
-func MakeVector3(v []Float) (r Vector3) {
+func MakeVector3(v []floatType) (r Vector3) {
 	for i := 0; i < len(r); i++ { r[i] = v[i] }
 	return
 }
@@ -55,16 +55,16 @@ func (v1 *Vector3) DivThis(v2 Vector3) {
 
 
 // Scalar multiplication
-func (v Vector3) ScalarMultiply(scalar Float) (r Vector3) {
+func (v Vector3) ScalarMultiply(scalar floatType) (r Vector3) {
 	for i := 0; i < len(v); i++ { r[i] = v[i]*scalar }
 	return
 }
 // In place scalar multiplication
-func (v *Vector3) ScalarMultiplyThis(scalar Float) {
+func (v *Vector3) ScalarMultiplyThis(scalar floatType) {
 	*v = v.ScalarMultiply(scalar)
 }
 
-func (v1 Vector3) Dot(v2 Vector3) (r Float) {
+func (v1 Vector3) Dot(v2 Vector3) (r floatType) {
 	for i := 0; i < len(v1); i++ { r += v1[i]*v2[i] }
 	return
 }
@@ -74,20 +74,20 @@ func (v1 Vector3) Cross(v2 Vector3) Vector3 {
 }
 
 // The magnitude squared of a vector
-func (v Vector3) LengthSq() (m Float) {
+func (v Vector3) LengthSq() (m floatType) {
 	return v.Dot(v)
 }
 // The magnitude of a vector
-func (v Vector3) Length() Float {
+func (v Vector3) Length() floatType {
 	return Sqrtf(v.LengthSq())
 }
 
 // If two vectors represents points the distance squared between them can be calculated
-func (v0 Vector3) DistanceSq(v1 Vector3) Float {
+func (v0 Vector3) DistanceSq(v1 Vector3) floatType {
 	return v0.Sub(v1).LengthSq()
 }
 // If two vectors represents points the distance between them can be calculated
-func (v0 Vector3) Distance(v1 Vector3) Float {
+func (v0 Vector3) Distance(v1 Vector3) floatType {
 	return Sqrtf(v0.DistanceSq(v1))
 }
 
@@ -106,7 +106,7 @@ func (m1 Vector3) Equals(q Vector3) bool {
 	return m1[0] == q[0] && m1[1] == q[1] && m1[2] == q[2]
 }
 
-func (a Vector3) ApproxEquals(b Vector3, ε Float) bool {
+func (a Vector3) ApproxEquals(b Vector3, ε floatType) bool {
 	for i := 0; i < 3; i++ {
 		if Fabsf(a[i]-b[i]) > ε {
 			return false
@@ -116,12 +116,12 @@ func (a Vector3) ApproxEquals(b Vector3, ε Float) bool {
 }
 
 // untested
-func (v Vector3) Yaw() Float {
+func (v Vector3) Yaw() floatType {
 	return -Atan2f(v[0], v[2])
 }
 
 // untested
-func (v Vector3) Pitch() Float {
+func (v Vector3) Pitch() floatType {
 	return -Atan2f(v[1], Sqrtf(v[0]*v[0]+v[2]*v[2]))
 }
 

@@ -1,16 +1,12 @@
 /*
-This code is an incomplete port of the C++ algebra library WildMagic5 (geometrictools.com)
-Note that this code uses column major matrixes, just like OpenGl
+Note that this code uses row major matrixes
 Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
-http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 */
 
 package math3d64
-//This code is auto generated from the math3d32 package. Do not edit.
+
 import "math"
-
-
 
 const internalε float64 = 0.000001
 const internalεε float64 = internalε * internalε
@@ -19,14 +15,16 @@ const Rad2Deg float64 = float64(180.0 / math.Pi)
 const Deg2Rad float64 = float64(math.Pi / 180.0)
 
 // some ready converted float64 values
-const Pi float64 = math.Pi
+const Pi float64 = float64(math.Pi)
 const TwoPi float64 = float64(math.Pi * 2.)
 const PiHalf float64 = float64(math.Pi * .5)
 const Epsilon float64 = 0.000001
 
+
+
 // these functions only exists so that we don't have to 
-// use ugly float64() and float64() convertions all over the math3d32 code 
-func Sin(a float64) float64 {
+// use ugly float32() and float64() convertions all over the math3d64 code 
+func Sinf(a float64) float64 {
 	return float64(math.Sin(float64(a)))
 }
 
@@ -34,16 +32,28 @@ func Asinf(a float64) float64 {
 	return float64(math.Asin(float64(a)))
 }
 
-func Cos(a float64) float64 {
+func Cosf(a float64) float64 {
 	return float64(math.Cos(float64(a)))
 }
 
-func Acos(a float64) float64 {
+func Acosf(a float64) float64 {
 	return float64(math.Acos(float64(a)))
 }
 
-func Fabs(a float64) float64 {
-	return float64(math.Fabs(float64(a)))
+func Tanf(a float64) float64 {
+	return float64(math.Tan(float64(a)))
+}
+func Atanf(a float64) float64 {
+	return float64(math.Atan(float64(a)))
+}
+func Atan2f(y, x float64) float64 {
+	return float64(math.Atan2(float64(x), float64(y)))
+}
+
+
+
+func Fabsf(a float64) float64 {
+	return float64(math.Abs(float64(a)))
 }
 
 // Signbit returns true if x is negative or negative zero.
@@ -51,7 +61,7 @@ func Signbit(a float64) bool {
 	return math.Signbit(float64(a))
 }
 
-func Sqrt(a float64) float64 {
+func Sqrtf(a float64) float64 {
 	return float64(math.Sqrt(float64(a)))
 }
 
@@ -70,16 +80,16 @@ func Max(a, b float64) float64 {
 }
 
 func AbsMin(a, b float64) float64 {
-	if math.Fabs(a) < math.Fabs(b) {
+	if Fabsf(a) < Fabsf(b) {
 		return a
 	}
 	return b
 }
 
 func AbsMin3(a, b, c float64) float64 {
-	fabsa := math.Fabs(a)
-	fabsb := math.Fabs(b)
-	fabsc := math.Fabs(c)
+	fabsa := Fabsf(a)
+	fabsb := Fabsf(b)
+	fabsc := Fabsf(c)
 
 	if fabsa < fabsb && fabsa < fabsc {
 		return a
@@ -91,7 +101,7 @@ func AbsMin3(a, b, c float64) float64 {
 }
 
 func AbsMax(a, b float64) float64 {
-	if math.Fabs(a) > math.Fabs(b) {
+	if Fabsf(a) > Fabsf(b) {
 		return a
 	}
 	return b
@@ -128,10 +138,30 @@ func MinAngleBetweenVersion2(a1,a2 float64) float64 {
 /*
 Tests to see if the difference between two floats exceeds ε.
 */
-func ApproxEquals(f1, f2 float64, ε float64) bool {
-	if math.Fabs(f1-f2) > ε {
-		//print ("diff is ", math.Fabs(f1-f2))
-		return false
-	}
-	return true
+func ApproxEquals(f1, f2, ε float64) bool {
+	return Fabsf(f1-f2) < ε
+}
+
+func ApproxEquals2(f1, f2, ε float64) bool {
+	return Fabsf(f1 - f2) < ε * Max(1.0, Max(Fabsf(f1), Fabsf(f2)))
+}
+
+func AlmostEqual2sComplement(A, B float64, maxUlps uint64) bool {
+	// Make sure maxUlps is non-negative and small enough that the
+	// default NAN won't compare as equal to anything.
+	if(maxUlps >= 1 << (mantissaSize-1)) { panic("maxUlps too big") }
+	
+	aInt := floatBits(A)
+	// Make aInt lexicographically ordered as a twos-complement int
+	if aInt < 0 { aInt = minInt - aInt }
+	
+	// Make bInt lexicographically ordered as a twos-complement int
+	bInt := floatBits(B)
+	if bInt < 0 { bInt = minInt - bInt }
+	
+	var intDiff int64
+	if bInt < aInt { intDiff = aInt - bInt
+	} else         { intDiff = bInt - aInt }
+	
+	return intDiff <= int64(maxUlps)
 }

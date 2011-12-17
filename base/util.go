@@ -7,98 +7,86 @@ http://www.boost.org/LICENSE_1_0.txt
 package math3d32
 
 import "math"
-import "rand"
 
-// Set these based on the type of Float
-// const mantissaSize = 23, const mantissaSize = 52
-// const minInt = math.MinInt32, const minInt = math.MinInt64
-// Float -> float32, float64
-// intType -> int32, int64
+const internalε floatType = 0.000001
+const internalεε floatType = internalε * internalε
 
+const Rad2Deg floatType = floatType(180.0 / math.Pi)
+const Deg2Rad floatType = floatType(math.Pi / 180.0)
 
-func floatBits(f Float) intType { return intType(math.Float32bits(float32(f))) }
-func Randf(r *rand.Rand) Float { return Float(rand.Float32()) }
-
-
-const internalε Float = 0.000001
-const internalεε Float = internalε * internalε
-
-const Rad2Deg Float = Float(180.0 / math.Pi)
-const Deg2Rad Float = Float(math.Pi / 180.0)
-
-// some ready converted Float values
-const Pi Float = Float(math.Pi)
-const TwoPi Float = Float(math.Pi * 2.)
-const PiHalf Float = Float(math.Pi * .5)
-const Epsilon Float = 0.000001
+// some ready converted floatType values
+const Pi floatType = floatType(math.Pi)
+const TwoPi floatType = floatType(math.Pi * 2.)
+const PiHalf floatType = floatType(math.Pi * .5)
+const Epsilon floatType = 0.000001
 
 
 
 // these functions only exists so that we don't have to 
 // use ugly float32() and float64() convertions all over the math3d32 code 
-func Sinf(a Float) Float {
-	return Float(math.Sin(float64(a)))
+func Sinf(a floatType) floatType {
+	return floatType(math.Sin(float64(a)))
 }
 
-func Asinf(a Float) Float {
-	return Float(math.Asin(float64(a)))
+func Asinf(a floatType) floatType {
+	return floatType(math.Asin(float64(a)))
 }
 
-func Cosf(a Float) Float {
-	return Float(math.Cos(float64(a)))
+func Cosf(a floatType) floatType {
+	return floatType(math.Cos(float64(a)))
 }
 
-func Acosf(a Float) Float {
-	return Float(math.Acos(float64(a)))
+func Acosf(a floatType) floatType {
+	return floatType(math.Acos(float64(a)))
 }
 
-func Tanf(a Float) Float {
-	return Float(math.Tan(float64(a)))
+func Tanf(a floatType) floatType {
+	return floatType(math.Tan(float64(a)))
 }
-func Atanf(a Float) Float {
-	return Float(math.Atan(float64(a)))
+func Atanf(a floatType) floatType {
+	return floatType(math.Atan(float64(a)))
 }
-func Atan2f(y, x Float) Float {
-	return Float(math.Atan2(float64(x), float64(y)))
+func Atan2f(y, x floatType) floatType {
+	return floatType(math.Atan2(float64(x), float64(y)))
 }
 
 
 
-func Fabsf(a Float) Float {
-	return Float(math.Abs(float64(a)))
+func Fabsf(a floatType) floatType {
+	return floatType(math.Abs(float64(a)))
 }
 
 // Signbit returns true if x is negative or negative zero.
-func Signbit(a Float) bool {
+func Signbit(a floatType) bool {
 	return math.Signbit(float64(a))
 }
 
-func Sqrtf(a Float) Float {
-	return Float(math.Sqrt(float64(a)))
+func Sqrtf(a floatType) floatType {
+	return floatType(math.Sqrt(float64(a)))
 }
 
-func Min(a, b Float) Float {
+func Min(a, b floatType) floatType {
 	if a < b {
 		return a
 	}
 	return b
 }
 
-func Max(a, b Float) Float {
+func Max(a, b floatType) floatType {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func AbsMin(a, b Float) Float {
+func AbsMin(a, b floatType) floatType {
 	if Fabsf(a) < Fabsf(b) {
 		return a
 	}
 	return b
 }
 
-func AbsMin3(a, b, c Float) Float {
+func AbsMin3(a, b, c floatType) floatType {
 	fabsa := Fabsf(a)
 	fabsb := Fabsf(b)
 	fabsc := Fabsf(c)
@@ -112,7 +100,7 @@ func AbsMin3(a, b, c Float) Float {
 	return c
 }
 
-func AbsMax(a, b Float) Float {
+func AbsMax(a, b floatType) floatType {
 	if Fabsf(a) > Fabsf(b) {
 		return a
 	}
@@ -121,7 +109,7 @@ func AbsMax(a, b Float) Float {
 
 // return the smallest angle between two radians
 // if any of the angles are larger than -+2*Pi it won't work
-func MinAngleBetween(a1, a2 Float) Float {
+func MinAngleBetween(a1, a2 floatType) floatType {
 	diff1 := a1 - a2
 	diff2 := a1 - a2 + TwoPi
 	diff3 := a1 - a2 - TwoPi
@@ -130,9 +118,9 @@ func MinAngleBetween(a1, a2 Float) Float {
 }
 
 /*
-func MinAngleBetweenVersion2(a1,a2 Float) Float {
+func MinAngleBetweenVersion2(a1,a2 floatType) floatType {
 	// this solution does not care about the sign  
-	var crossDiff, directDiff Float
+	var crossDiff, directDiff floatType
 	if a1 > a2 {
 		crossDiff = TwoPi - a1 + a2
 		directDiff = a1 - a2
@@ -150,15 +138,15 @@ func MinAngleBetweenVersion2(a1,a2 Float) Float {
 /*
 Tests to see if the difference between two floats exceeds ε.
 */
-func ApproxEquals(f1, f2, ε Float) bool {
+func ApproxEquals(f1, f2, ε floatType) bool {
 	return Fabsf(f1-f2) < ε
 }
 
-func ApproxEquals2(f1, f2, ε Float) bool {
+func ApproxEquals2(f1, f2, ε floatType) bool {
 	return Fabsf(f1 - f2) < ε * Max(1.0, Max(Fabsf(f1), Fabsf(f2)))
 }
 
-func AlmostEqual2sComplement(A, B Float, maxUlps uint32) bool {
+func AlmostEqual2sComplement(A, B floatType, maxUlps uintType) bool {
 	// Make sure maxUlps is non-negative and small enough that the
 	// default NAN won't compare as equal to anything.
 	if(maxUlps >= 1 << (mantissaSize-1)) { panic("maxUlps too big") }

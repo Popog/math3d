@@ -1,72 +1,104 @@
 /*
-This code is an incomplete port of the C++ algebra library WildMagic5 (geometrictools.com)
-Note that this code uses column major matrixes, just like OpenGl
+Note that this code uses row major matrixes
 Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
-http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 */
 
 package math3d64
-//This code is auto generated from the math3d32 package. Do not edit.
-import "math"
 
 import "fmt"
 
-type Matrix3 []float64
+type Matrix3 [3*3]float64
 
-func MakeMatrix3V(v []float64, rowMajor bool) Matrix3 {
-	if rowMajor {
-		// transform the data to OpenGl format
-		return Matrix3{v[0], v[3], v[6], v[1], v[4], v[7], v[2], v[5], v[8]}[:]
-	}
-	return Matrix3{v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]}[:]
+
+// Constructors
+func MakeMatrix3(v []float64, rowMajor bool) (r Matrix3) {
+	for i := 0; i < len(r); i++ { r[i] = v[i] }
+	// transform the data to OpenGl format
+	if !rowMajor { r.TransposeThis() }
+	return
+}
+func (m * Matrix3) ZeroThis() {
+	*m = Matrix3{}
+}
+func MakeMatrix3Identity() (m Matrix3) {
+	const size = 3
+	for i := 0; i < size; i++ { m[i*size + i] = 1 }
+	return
+}
+func (m *Matrix3) IdentityThis() {
+	*m = MakeMatrix3Identity()
 }
 
-func MakeMatrix3() Matrix3 {
-	return Matrix3{.0, .0, .0, .0, .0, .0, .0, .0, .0}[:]
+
+// d8888b. d8888b.  .d88b.  d8888b. d88888b d8888b. d888888b db    db      d888b  d88888b d888888b d888888b d88888b d8888b. .d8888. 
+// 88  `8D 88  `8D .8P  Y8. 88  `8D 88'     88  `8D `~~88~~' `8b  d8'     88' Y8b 88'     `~~88~~' `~~88~~' 88'     88  `8D 88'  YP 
+// 88oodD' 88oobY' 88    88 88oodD' 88ooooo 88oobY'    88     `8bd8'      88      88ooooo    88       88    88ooooo 88oobY' `8bo.   
+// 88~~~   88`8b   88    88 88~~~   88~~~~~ 88`8b      88       88        88  ooo 88~~~~~    88       88    88~~~~~ 88`8b     `Y8b. 
+// 88      88 `88. `8b  d8' 88      88.     88 `88.    88       88        88. ~8~ 88.        88       88    88.     88 `88. db   8D 
+// 88      88   YD  `Y88P'  88      Y88888P 88   YD    YP       YP         Y888P  Y88888P    YP       YP    Y88888P 88   YD `8888Y' 
+
+// Returns a row as a vector
+func (m Matrix3) GetRow(row int) (r Vector3) {
+	for i := 0; i < len(r); i++ { r[i] = m.At(row, i) }
+	return
 }
 
-func (m Matrix3) Copy() Matrix3 {
-	return Matrix3{m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]}[:]
+// Returns a column as a vector
+func (m Matrix3) GetCol(col int) (r Vector3) {
+	for i := 0; i < len(r); i++ { r[i] = m.At(i, col) }
+	return
 }
 
-func (m Matrix3) MakeZero() Matrix3 {
-	m[0] = .0
-	m[1] = .0
-	m[2] = .0
-	m[3] = .0
-	m[4] = .0
-	m[5] = .0
-	m[6] = .0
-	m[7] = .0
-	m[8] = .0
-	return m
-}
-
-func (m Matrix3) MakeIdentity() Matrix3 {
-	m[0] = 1.
-	m[4] = 1.
-	m[8] = 1.
-	m[1] = .0
-	m[2] = .0
-	m[3] = .0
-	m[5] = .0
-	m[6] = .0
-	m[7] = .0
-	return m
+// Returns the element at row,col
+func (m Matrix3) At(row, col int) float64 {
+	const size = 3
+	return m[row*size+col]
 }
 
 func (m Matrix3) Determinant() float64 {
 	return m[0]*(m[4]*m[8]-m[5]*m[7]) - m[1]*(m[3]*m[8]-m[5]*m[6]) + m[2]*(m[3]*m[7]-m[4]*m[6])
 }
 
-func (m Matrix3) MulS(scalar float64) Matrix3 {
-	s := scalar
-	return Matrix3{m[0] * s, m[1] * s, m[2] * s, m[3] * s, m[4] * s, m[5] * s, m[6] * s, m[7] * s, m[8] * s}[:]
+func (m Matrix3) Cofactor() (r Matrix3) {
+	r[0] = (m[4]*m[8] - m[5]*m[7])
+	r[1] = -(m[3]*m[8] - m[5]*m[6])
+	r[2] = (m[3]*m[7] - m[4]*m[6])
+	r[3] = -(m[1]*m[8] - m[2]*m[7])
+	r[4] = (m[0]*m[8] - m[2]*m[6])
+	r[5] = -(m[0]*m[7] - m[1]*m[6])
+	r[6] = (m[1]*m[5] - m[2]*m[4])
+	r[7] = -(m[0]*m[5] - m[2]*m[3])
+	r[8] = (m[0]*m[4] - m[1]*m[3])
+	return
 }
 
-func (m Matrix3) Inverse() Matrix3 {
-	r := MakeMatrix3()
+// Tests to see if the difference between two matrices, element-wise, exceeds ε.
+func (m Matrix3) ApproxEquals(q Matrix3, ε float64) bool {
+	for i := 0; i < len(m); i++ {
+		if ApproxEquals(m[i], q[i], ε) {
+			return false
+		}
+	}
+	return true
+}
+
+func (m Matrix3) Equals(q Matrix3) bool {
+	for i := 0; i < len(m); i++ {
+		if(m[i] != q[i]) { return false }
+	}
+	return true
+	//return m[0] == q[0] && m[3] == q[3] && m[6] == q[6] && m[1] == q[1] && m[4] == q[4] && m[7] == q[7] && m[2] == q[2] && m[5] == q[5] && m[8] == q[8]
+}
+
+func (m Matrix3) String() string {
+	// output in octave format for easy testing
+	return fmt.Sprintf("[%.5f,%.5f,%.5f;%.5f,%.5f,%.5f;%.5f,%.5f,%.5f]", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8])
+}
+
+
+
+func (m Matrix3) Inverse() (r Matrix3) {
 	d := 1.0 / m.Determinant()
 	r[0] = d * (m[4]*m[8] - m[5]*m[7])
 	r[1] = -d * (m[1]*m[8] - m[2]*m[7])
@@ -77,63 +109,64 @@ func (m Matrix3) Inverse() Matrix3 {
 	r[6] = d * (m[3]*m[7] - m[4]*m[6])
 	r[7] = -d * (m[0]*m[7] - m[1]*m[6])
 	r[8] = d * (m[0]*m[4] - m[1]*m[3])
-	return r
+	return
 }
 
-func (m Matrix3) Cofactor() Matrix3 {
-	r := MakeMatrix3()
-	r[0] = (m[4]*m[8] - m[5]*m[7])
-	r[1] = -(m[3]*m[8] - m[5]*m[6])
-	r[2] = (m[3]*m[7] - m[4]*m[6])
-	r[3] = -(m[1]*m[8] - m[2]*m[7])
-	r[4] = (m[0]*m[8] - m[2]*m[6])
-	r[5] = -(m[0]*m[7] - m[1]*m[6])
-	r[6] = (m[1]*m[5] - m[2]*m[4])
-	r[7] = -(m[0]*m[5] - m[2]*m[3])
-	r[8] = (m[0]*m[4] - m[1]*m[3])
-	return r
+func (m *Matrix3) InverseThis() {
+	*m = m.Inverse()
 }
 
-func (m Matrix3) Equal(q Matrix3) bool {
-	return m[0] == q[0] && m[3] == q[3] && m[6] == q[6] && m[1] == q[1] && m[4] == q[4] && m[7] == q[7] && m[2] == q[2] && m[5] == q[5] && m[8] == q[8]
+// Return the transpose of matrix
+func (m Matrix3) Transpose() Matrix3 {
+	const size = 3
+	for r := 0; r < size; r++ {
+		for c := 0; c < r; c++ {
+			m[r*size + c], m[c*size + r] = m[c*size + r], m[r*size + c]
+		}
+	}
+	return m
 }
 
-func (m Matrix3) NotEqual(q Matrix3) bool {
-	return m[0] != q[0] || m[3] != q[3] || m[6] != q[6] || m[1] != q[1] || m[4] != q[4] || m[7] != q[7] || m[2] != q[2] || m[5] != q[5] || m[8] != q[8]
+// Transposes the matrix in-place
+func (m * Matrix3) TransposeThis() {
+	*m = m.Transpose()
+}
+
+func (m Matrix3) ScalarMultiply(scalar float64) Matrix3 {
+	for i := 0; i < len(m); i++ { m[i] *= scalar }
+	return m
+}
+
+func (m *Matrix3) ScalarMultiplyThis(scalar float64) {
+	*m = m.ScalarMultiply(scalar)
 }
 
 // Mutiply this matrix with a column vector v, resulting in another column vector
-func (m Matrix3) MultiplyV(v Vector3) Vector3 {
-	return Vector3{m[0]*v[0] + m[1]*v[1] + m[2]*v[2],
-		m[3]*v[0] + m[4]*v[1] + m[5]*v[2],
-		m[6]*v[0] + m[7]*v[1] + m[8]*v[2]}
+func (m Matrix3) MultiplyV(v Vector3) (r Vector3) {
+	for i := 0; i < len(r); i++ { r[i] = m.GetRow(i).Dot(v) }
+	return
 }
 
-func (m Matrix3) MultiplyM(q Matrix3) Matrix3 {
-	r := MakeMatrix3()
-	r[0] = q[0]*m[0] + q[1]*m[3] + q[2]*m[6]
-	r[1] = q[0]*m[1] + q[1]*m[4] + q[2]*m[7]
-	r[2] = q[0]*m[2] + q[1]*m[5] + q[2]*m[8]
-	r[3] = q[3]*m[0] + q[4]*m[3] + q[5]*m[6]
-	r[4] = q[3]*m[1] + q[4]*m[4] + q[5]*m[7]
-	r[5] = q[3]*m[2] + q[4]*m[5] + q[5]*m[8]
-	r[6] = q[6]*m[0] + q[7]*m[3] + q[8]*m[6]
-	r[7] = q[6]*m[1] + q[7]*m[4] + q[8]*m[7]
-	r[8] = q[6]*m[2] + q[7]*m[5] + q[8]*m[8]
-	return r
+// Returns m * q
+func (m Matrix3) RightMultiply(q Matrix3) (result Matrix3) {
+	const size = 3
+	for r := 0; r < size; r++ {
+		for c := 0; c < size; c++ {
+			result[r*size + c] = m.GetRow(r).Dot(q.GetCol(c))
+		}
+	}
+	return
 }
 
-// Transposed will *not* modify m
-func (m Matrix3) Transposed() Matrix3 {
-	return Matrix3{m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]}[:]
-}
-
-// Transpose will modify m
-func (m Matrix3) Transpose() Matrix3 {
-	m[1], m[3] = m[3], m[1]
-	m[2], m[6] = m[6], m[2]
-	m[5], m[7] = m[7], m[5]
-	return m
+// Return q * m (if for some reason you wanted that)
+func (m Matrix3) LeftMultiply(q Matrix3) (result Matrix3) {
+	const size = 3
+	for r := 0; r < size; r++ {
+		for c := 0; c < size; c++ {
+			result[r*size + c] = q.GetRow(r).Dot(m.GetCol(c))
+		}
+	}
+	return
 }
 
 /*
@@ -141,9 +174,9 @@ func (m Matrix3) Transpose() Matrix3 {
 func (m Matrix3) Orthogonalize(){
 	i := MakeVector3(m[0],m[1],m[2])
 	j := MakeVector3(m[3],m[4],m[5]) 
-	k := MakeVector3(m[6],m[7],m[8]).Normalize();
+	k := MakeVector3(m[6],m[7],m[8]).Normalize()
 	i = j.Cross(k).Normalize()
-	j=k.Cross(i);
+	j=k.Cross(i)
 	m[0]=i[0]; m[3]=j[0]; m[6]=k[0]
 	m[1]=i[3]; m[4]=j[3]; m[7]=k[3]
 	m[2]=i[6]; m[5]=j[6]; m[8]=k[6]
@@ -151,25 +184,9 @@ func (m Matrix3) Orthogonalize(){
 
 func (m1 Matrix3) Orthogonalized() Matrix3{
 	m := m1.Copy()
-	m.Orthogonalize();
-	return m;
+	m.Orthogonalize()
+	return m
 }
 */
 
-/*
-Tests to see if the difference between two matrices,
-element-wise, exceeds ε.
-*/
-func (a Matrix3) ApproxEquals(b Matrix3, ε float64) bool {
-	for i := 0; i < 9; i++ {
-		if math.Fabs(a[i]-b[i]) > ε {
-			return false
-		}
-	}
-	return true
-}
 
-func (m Matrix3) String() string {
-	// output in octave format for easy testing
-	return fmt.Sprintf("[%.5f,%.5f,%.5f;%.5f,%.5f,%.5f;%.5f,%.5f,%.5f]", m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8])
-}

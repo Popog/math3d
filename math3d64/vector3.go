@@ -1,96 +1,114 @@
 /*
-This code is an incomplete port of the C++ algebra library WildMagic5 (geometrictools.com)
-Note that this code uses column major matrixes, just like OpenGl
+Note that this code uses row major matrixes
 Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
-http://www.geometrictools.com/License/Boost/LICENSE_1_0.txt
 */
 
 package math3d64
-//This code is auto generated from the math3d32 package. Do not edit.
-import "math"
 
 import "fmt"
 
+type Vector3 [3]float64
 
-type Vector3 []float64
-
-func MakeVector3(x, y, z float64) Vector3 {
-	return Vector3{x, y, z}[:]
+func MakeVector3(v []float64) (r Vector3) {
+	for i := 0; i < len(r); i++ { r[i] = v[i] }
+	return
 }
 
-func MakeVector3V(v []float64) Vector3 {
-	return Vector3{v[0], v[1], v[2]}[:]
-}
-
-// return v1+v2 (won't modify any of them)
+// Entrywise addition
 func (v1 Vector3) Add(v2 Vector3) Vector3 {
-	return Vector3{v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]}[:]
+	return Vector3{v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]}
+}
+// In-place entrywise addition
+func (v1 * Vector3) AddThis(v2 Vector3) {
+	*v1 = v1.Add(v2)
 }
 
-// return v1-v2 (won't modify any of them)
+// Entrywise subtraction
 func (v1 Vector3) Sub(v2 Vector3) Vector3 {
-	return Vector3{v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]}[:]
+	return Vector3{v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]}
+}
+// In-place entrywise subtraction
+func (v1 * Vector3) SubThis(v2 Vector3) {
+	*v1 = v1.Sub(v2)
 }
 
-func (v1 Vector3) Dot(v2 Vector3) float64 {
-	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2]
+// Entrywise product (Hadamard product?)
+func (v1 Vector3) Mul(v2 Vector3) (r Vector3) {
+	for i := 0; i < len(v1); i++ { r[i] = v1[i]*v2[i] }
+	return
+}
+// In-place entrywise product (Hadamard product?)
+func (v1 *Vector3) MulThis(v2 Vector3) {
+	*v1 = v1.Mul(v2)
+}
+// Entrywise quotient (Hadamard quotient?)
+func (v1 Vector3) Div(v2 Vector3) (r Vector3) {
+	for i := 0; i < len(v1); i++ { r[i] = v1[i]/v2[i] }
+	return
+}
+// In-place entrywise quotient (Hadamard quotient?)
+func (v1 *Vector3) DivThis(v2 Vector3) {
+	*v1 = v1.Div(v2)
+}
+
+
+
+// Scalar multiplication
+func (v Vector3) ScalarMultiply(scalar float64) (r Vector3) {
+	for i := 0; i < len(v); i++ { r[i] = v[i]*scalar }
+	return
+}
+// In place scalar multiplication
+func (v *Vector3) ScalarMultiplyThis(scalar float64) {
+	*v = v.ScalarMultiply(scalar)
+}
+
+func (v1 Vector3) Dot(v2 Vector3) (r float64) {
+	for i := 0; i < len(v1); i++ { r += v1[i]*v2[i] }
+	return
 }
 
 func (v1 Vector3) Cross(v2 Vector3) Vector3 {
-	return Vector3{v1[1]*v2[2] - v1[2]*v2[1], v1[2]*v2[0] - v1[0]*v2[2], v1[0]*v2[1] - v1[1]*v2[0]}[:]
+	return Vector3{v1[1]*v2[2] - v1[2]*v2[1], v1[2]*v2[0] - v1[0]*v2[2], v1[0]*v2[1] - v1[1]*v2[0]}
 }
 
+// The magnitude squared of a vector
+func (v Vector3) LengthSq() (m float64) {
+	return v.Dot(v)
+}
+// The magnitude of a vector
 func (v Vector3) Length() float64 {
-	return math.Sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+	return Sqrtf(v.LengthSq())
 }
 
+// If two vectors represents points the distance squared between them can be calculated
+func (v0 Vector3) DistanceSq(v1 Vector3) float64 {
+	return v0.Sub(v1).LengthSq()
+}
 // If two vectors represents points the distance between them can be calculated
 func (v0 Vector3) Distance(v1 Vector3) float64 {
-	d0 := v0[0] - v1[0]
-	d1 := v0[1] - v1[1]
-	d2 := v0[2] - v1[2]
-	return math.Sqrt(d0*d0 + d1*d1 + d2*d2)
+	return Sqrtf(v0.DistanceSq(v1))
 }
 
-// If two vectors represents points the distance between them can be calculated
-// Same as Distance(), just omitting the final sqrt() call
-func (v0 Vector3) DistanceSqr(v1 Vector3) float64 {
-	d0 := v0[0] - v1[0]
-	d1 := v0[1] - v1[1]
-	d2 := v0[2] - v1[2]
-	return d0*d0 + d1*d1 + d2*d2
-}
-
-func (m Vector3) Copy() Vector3 {
-	return Vector3{m[0], m[1], m[2]}[:]
-}
 
 // Normalize will modify this vector
 func (v Vector3) Normalize() Vector3 {
-	l := 1.0 / v.Length()
-	v[0] *= l
-	v[1] *= l
-	v[2] *= l
-	return v
+	return v.ScalarMultiply(1.0 / v.Length())
+}
+// In place normalize
+func (v *Vector3) NormalizeThis() {
+	*v = v.Normalize()
 }
 
-func (m1 Vector3) Equal(q Vector3) bool {
+
+func (m1 Vector3) Equals(q Vector3) bool {
 	return m1[0] == q[0] && m1[1] == q[1] && m1[2] == q[2]
 }
 
-// seems rather pointless to have both tests..  todo
-func (m1 Vector3) NotEqual(q Vector3) bool {
-	return m1[0] != q[0] || m1[1] != q[1] || m1[2] != q[2]
-}
-
-/*
-Tests to see if the difference between two matrices,
-element-wise, exceeds ε.
-*/
 func (a Vector3) ApproxEquals(b Vector3, ε float64) bool {
 	for i := 0; i < 3; i++ {
-		if math.Fabs(a[i]-b[i]) > ε {
+		if Fabsf(a[i]-b[i]) > ε {
 			return false
 		}
 	}
@@ -99,19 +117,12 @@ func (a Vector3) ApproxEquals(b Vector3, ε float64) bool {
 
 // untested
 func (v Vector3) Yaw() float64 {
-	return float64(-math.Atan2(float64(v[0]), float64(v[2])))
+	return -Atan2f(v[0], v[2])
 }
 
 // untested
 func (v Vector3) Pitch() float64 {
-	return float64(-math.Atan2(float64(v[1]), math.Sqrt(float64(v[0])*float64(v[0])+float64(v[2])*float64(v[2]))))
-}
-
-// Multiply v (as a row vector) with the matrix m
-func (v Vector3) MultiplyM(m Matrix3) Vector3 {
-	return Vector3{v[0]*m[0] + v[1]*m[1] + v[2]*m[2],
-		v[0]*m[3] + v[1]*m[4] + v[2]*m[5],
-		v[0]*m[6] + v[1]*m[7] + v[2]*m[8]}[:]
+	return -Atan2f(v[1], Sqrtf(v[0]*v[0]+v[2]*v[2]))
 }
 
 func (v Vector3) String() string {

@@ -7,13 +7,12 @@ http://www.boost.org/LICENSE_1_0.txt
 package math3d32
 
 import "fmt"
-//import "math"
 
-// This is a 4x4 matrix of Float, stored in row major
-type Matrix4 [4*4]Float
+// This is a 4x4 matrix of floatType, stored in row major
+type Matrix4 [4*4]floatType
 
 // Make a new matrix from the array
-func MakeMatrix4V(v []Float, rowMajor bool) (r Matrix4) {
+func MakeMatrix4V(v []floatType, rowMajor bool) (r Matrix4) {
 	for i := 0; i < len(r); i++ { r[i] = v[i] }
 	// transform the data to OpenGl format
 	if !rowMajor { r.TransposeThis() }
@@ -72,13 +71,13 @@ func (m Matrix4) GetCol(col int) (r Vector4) {
 }
 
 // Returns the element at row,col
-func (m Matrix4) At(row, col int) Float {
+func (m Matrix4) At(row, col int) floatType {
 	const size = 4
 	return m[row*size+col]
 }
 
 // Gets the determinant 
-func (m Matrix4) Determinant() Float {
+func (m Matrix4) Determinant() floatType {
 	a0 := m[0]*m[5] - m[4]*m[1]
 	a1 := m[0]*m[9] - m[8]*m[1]
 	a2 := m[0]*m[13] - m[12]*m[1]
@@ -109,7 +108,7 @@ func (m Matrix4) Cofactor() (r Matrix4) {
 }
 
 // Tests to see if the difference between two matrices, element-wise, exceeds ε.
-func (m Matrix4) ApproxEquals(q Matrix4, ε Float) bool {
+func (m Matrix4) ApproxEquals(q Matrix4, ε floatType) bool {
 	for i := 0; i < len(m); i++ {
 		if ApproxEquals(m[i], q[i], ε) {
 			return false
@@ -195,12 +194,12 @@ func (m *Matrix4) TransposeThis() {
 	*m = m.Transpose()
 }
 
-func (m Matrix4) ScalarMultiply(scalar Float) Matrix4 {
+func (m Matrix4) ScalarMultiply(scalar floatType) Matrix4 {
 	for i := 0; i < len(m); i++ { m[i] *= scalar }
 	return m
 }
 
-func (m *Matrix4) ScalarMultiplyThis(scalar Float) {
+func (m *Matrix4) ScalarMultiplyThis(scalar floatType) {
 	*m = m.ScalarMultiply(scalar)
 }
 
@@ -283,7 +282,7 @@ func (m Matrix4) ToQuaternion() Quaternion {
 	q := Quaternion{0,0,0,0}
 	//fmt.Println("q = ", q)
 	trace := m[0] + m[5] + m[10]
-	var root Float
+	var root floatType
 	//fmt.Printf("trace = %f\n", trace)
 	if trace > 0. {
 		// |w| > 1/2, may as well choose w > 1/2

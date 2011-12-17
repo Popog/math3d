@@ -4,7 +4,7 @@ Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt
 */
 
-package math3d32
+package math3d64
 
 import "testing"
 import "rand"
@@ -13,7 +13,7 @@ import "time"
 func TestMakeMatrix3(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -37,7 +37,7 @@ func TestMakeMatrix3(t *testing.T) {
 func TestMatrix3_ZeroThis(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -77,7 +77,7 @@ func TestMakeMatrix3Identity(t *testing.T) {
 func TestMatrix3_IdentityThis(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -102,7 +102,7 @@ func TestMatrix3_IdentityThis(t *testing.T) {
 func TestMatrix3_GetRow(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -123,7 +123,7 @@ func TestMatrix3_GetRow(t *testing.T) {
 func TestMatrix3_GetCol(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -152,8 +152,8 @@ func TestMatrix3_Cofactor(t *testing.T) {
 func TestMatrix3_Equals(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data1 := make([]floatType, size*size)
-	data2 := make([]floatType, size*size)
+	data1 := make([]float64, size*size)
+	data2 := make([]float64, size*size)
 	
 	// Test Equals
 	for iterations := 0; iterations < 1000; iterations++ {
@@ -200,7 +200,7 @@ func TestMatrix3_InverseThis(t *testing.T) {
 func TestMatrix3_Transpose(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
@@ -221,7 +221,7 @@ func TestMatrix3_Transpose(t *testing.T) {
 
 func TestMatrix3_TransposeThis(t *testing.T) {const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
@@ -244,7 +244,7 @@ func TestMatrix3_TransposeThis(t *testing.T) {const size = 3
 func TestMatrix3_ScalarMultiply(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -266,7 +266,7 @@ func TestMatrix3_ScalarMultiply(t *testing.T) {
 func TestMatrix3_ScalarMultiplyThis(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -323,7 +323,7 @@ func TestMatrix3_MultiplyV(t *testing.T) {
 	
 	// Test identity matrix
 	{
-		data := make([]floatType, size)
+		data := make([]float64, size)
 		m := MakeMatrix3Identity()
 		for iterations := 0; iterations < 1000; iterations++ {
 			for i := 0; i < size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -335,7 +335,7 @@ func TestMatrix3_MultiplyV(t *testing.T) {
 	}
 	
 	// TODO: Get a bunch of test data to do this
-	input_matrix_data := [...][size*size]floatType {
+	input_matrix_data := [...][size*size]float64 {
 	}
 	_ = input_matrix_data
 }
@@ -347,7 +347,7 @@ func TestMatrix3_RightMultiply(t *testing.T) {
 func TestMatrix3_LeftMultiply(t *testing.T) {
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data := make([]floatType, size*size)
+	data := make([]float64, size*size)
 	for iterations := 0; iterations < 1000; iterations++ {
 		// Initialize the data
 		for i := 0; i < size*size; i++ { data[i] = (Randf(r) - 0.5) * 1000 }
@@ -381,8 +381,8 @@ func BenchmarkMatrix3_RightMultiply(b *testing.B) {
 	b.StopTimer()
 	const size = 3
 	r := rand.New(rand.NewSource(time.Nanoseconds()))
-	data1 := make([]floatType, size*size)
-	data2 := make([]floatType, size*size)
+	data1 := make([]float64, size*size)
+	data2 := make([]float64, size*size)
 	for i := 0; i < size*size; i++ { data1[i] = (Randf(r) - 0.5) * 1000 }
 	for i := 0; i < size*size; i++ { data2[i] = (Randf(r) - 0.5) * 1000 }
 	m1 := MakeMatrix3(data1, true)

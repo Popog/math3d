@@ -12,5 +12,6 @@ GOFILES=\
 	matrix4.go\
 	quaternion.go\
 	util.go\
+	helpers.go\
 
 include $(GOROOT)/src/Make.pkg

@@ -8,11 +8,11 @@ package math3d32
 
 import "fmt"
 
-type Matrix3 [3*3]Float
+type Matrix3 [3*3]floatType
 
 
 // Constructors
-func MakeMatrix3(v []Float, rowMajor bool) (r Matrix3) {
+func MakeMatrix3(v []floatType, rowMajor bool) (r Matrix3) {
 	for i := 0; i < len(r); i++ { r[i] = v[i] }
 	// transform the data to OpenGl format
 	if !rowMajor { r.TransposeThis() }
@@ -51,12 +51,12 @@ func (m Matrix3) GetCol(col int) (r Vector3) {
 }
 
 // Returns the element at row,col
-func (m Matrix3) At(row, col int) Float {
+func (m Matrix3) At(row, col int) floatType {
 	const size = 3
 	return m[row*size+col]
 }
 
-func (m Matrix3) Determinant() Float {
+func (m Matrix3) Determinant() floatType {
 	return m[0]*(m[4]*m[8]-m[5]*m[7]) - m[1]*(m[3]*m[8]-m[5]*m[6]) + m[2]*(m[3]*m[7]-m[4]*m[6])
 }
 
@@ -74,7 +74,7 @@ func (m Matrix3) Cofactor() (r Matrix3) {
 }
 
 // Tests to see if the difference between two matrices, element-wise, exceeds ε.
-func (m Matrix3) ApproxEquals(q Matrix3, ε Float) bool {
+func (m Matrix3) ApproxEquals(q Matrix3, ε floatType) bool {
 	for i := 0; i < len(m); i++ {
 		if ApproxEquals(m[i], q[i], ε) {
 			return false
@@ -132,12 +132,12 @@ func (m * Matrix3) TransposeThis() {
 	*m = m.Transpose()
 }
 
-func (m Matrix3) ScalarMultiply(scalar Float) Matrix3 {
+func (m Matrix3) ScalarMultiply(scalar floatType) Matrix3 {
 	for i := 0; i < len(m); i++ { m[i] *= scalar }
 	return m
 }
 
-func (m *Matrix3) ScalarMultiplyThis(scalar Float) {
+func (m *Matrix3) ScalarMultiplyThis(scalar floatType) {
 	*m = m.ScalarMultiply(scalar)
 }
 
