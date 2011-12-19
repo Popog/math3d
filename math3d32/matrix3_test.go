@@ -375,7 +375,20 @@ func TestMatrix3_LeftMultiply(t *testing.T) {
 
 
 
-
+func BenchmarkMatrix3_ScalarMultiply(b *testing.B) {
+	b.StopTimer()
+	const size = 3
+	r := rand.New(rand.NewSource(time.Nanoseconds()))
+	data1 := make([]float32, size*size)
+	data2 := (Randf(r) - 0.5) * 1000;
+	for i := 0; i < size*size; i++ { data1[i] = (Randf(r) - 0.5) * 1000 }
+	m1 := MakeMatrix3(data1, true)
+	
+	b.StartTimer()
+	for iterations := 0; iterations < b.N; iterations++ {
+		m1.ScalarMultiply(data2)
+	}
+}
 
 func BenchmarkMatrix3_RightMultiply(b *testing.B) {
 	b.StopTimer()
@@ -390,10 +403,6 @@ func BenchmarkMatrix3_RightMultiply(b *testing.B) {
 	
 	b.StartTimer()
 	for iterations := 0; iterations < b.N; iterations++ {
-		
-		m3 := m1.RightMultiply(m2)
-		m4 := m2.LeftMultiply(m1)
-		
-		if !m3.Equals(m4) { panic("m3 != m4") }
+		m1.RightMultiply(m2)
 	}
 }

@@ -13,7 +13,7 @@ type Matrix3 [3*3]float64
 
 // Constructors
 func MakeMatrix3(v []float64, rowMajor bool) (r Matrix3) {
-	for i := 0; i < len(r); i++ { r[i] = v[i] }
+	for i := range r { r[i] = v[i] }
 	// transform the data to OpenGl format
 	if !rowMajor { r.TransposeThis() }
 	return
@@ -40,13 +40,13 @@ func (m *Matrix3) IdentityThis() {
 
 // Returns a row as a vector
 func (m Matrix3) GetRow(row int) (r Vector3) {
-	for i := 0; i < len(r); i++ { r[i] = m.At(row, i) }
+	for i := range r { r[i] = m.At(row, i) }
 	return
 }
 
 // Returns a column as a vector
 func (m Matrix3) GetCol(col int) (r Vector3) {
-	for i := 0; i < len(r); i++ { r[i] = m.At(i, col) }
+	for i := range r { r[i] = m.At(i, col) }
 	return
 }
 
@@ -75,7 +75,7 @@ func (m Matrix3) Cofactor() (r Matrix3) {
 
 // Tests to see if the difference between two matrices, element-wise, exceeds ε.
 func (m Matrix3) ApproxEquals(q Matrix3, ε float64) bool {
-	for i := 0; i < len(m); i++ {
+	for i := range m {
 		if ApproxEquals(m[i], q[i], ε) {
 			return false
 		}
@@ -84,7 +84,7 @@ func (m Matrix3) ApproxEquals(q Matrix3, ε float64) bool {
 }
 
 func (m Matrix3) Equals(q Matrix3) bool {
-	for i := 0; i < len(m); i++ {
+	for i := range m {
 		if(m[i] != q[i]) { return false }
 	}
 	return true
@@ -133,7 +133,7 @@ func (m * Matrix3) TransposeThis() {
 }
 
 func (m Matrix3) ScalarMultiply(scalar float64) Matrix3 {
-	for i := 0; i < len(m); i++ { m[i] *= scalar }
+	for i := range m { m[i] *= scalar }
 	return m
 }
 
@@ -143,18 +143,35 @@ func (m *Matrix3) ScalarMultiplyThis(scalar float64) {
 
 // Mutiply this matrix with a column vector v, resulting in another column vector
 func (m Matrix3) MultiplyV(v Vector3) (r Vector3) {
-	for i := 0; i < len(r); i++ { r[i] = m.GetRow(i).Dot(v) }
+	for i := range r { r[i] = m.GetRow(i).Dot(v) }
 	return
 }
 
 // Returns m * q
 func (m Matrix3) RightMultiply(q Matrix3) (result Matrix3) {
 	const size = 3
-	for r := 0; r < size; r++ {
+	/*for r := 0; r < size; r++ {
 		for c := 0; c < size; c++ {
 			result[r*size + c] = m.GetRow(r).Dot(q.GetCol(c))
 		}
+	}*/
+	for i := range result {
+		r, c := i / size, i % size
+		result[i] = m.GetRow(r).Dot(q.GetCol(c))
 	}
+	
+	/*result[0] = m.GetRow(0).Dot(q.GetCol(0))
+	result[1] = m.GetRow(0).Dot(q.GetCol(1))
+	result[2] = m.GetRow(0).Dot(q.GetCol(2))
+	            
+	result[3] = m.GetRow(1).Dot(q.GetCol(0))
+	result[4] = m.GetRow(1).Dot(q.GetCol(1))
+	result[5] = m.GetRow(1).Dot(q.GetCol(2))
+	            
+	result[6] = m.GetRow(2).Dot(q.GetCol(0))
+	result[7] = m.GetRow(2).Dot(q.GetCol(1))
+	result[8] = m.GetRow(2).Dot(q.GetCol(2))*/
+	
 	return
 }
 

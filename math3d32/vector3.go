@@ -11,13 +11,14 @@ import "fmt"
 type Vector3 [3]float32
 
 func MakeVector3(v []float32) (r Vector3) {
-	for i := 0; i < len(r); i++ { r[i] = v[i] }
+	for i := range r { r[i] = v[i] }
 	return
 }
 
 // Entrywise addition
 func (v1 Vector3) Add(v2 Vector3) Vector3 {
-	return Vector3{v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]}
+	for i := range v1 { v1[i] += v2[i] }
+	return v1
 }
 // In-place entrywise addition
 func (v1 * Vector3) AddThis(v2 Vector3) {
@@ -26,7 +27,8 @@ func (v1 * Vector3) AddThis(v2 Vector3) {
 
 // Entrywise subtraction
 func (v1 Vector3) Sub(v2 Vector3) Vector3 {
-	return Vector3{v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]}
+	for i := range v1 { v1[i] -= v2[i] }
+	return v1
 }
 // In-place entrywise subtraction
 func (v1 * Vector3) SubThis(v2 Vector3) {
@@ -35,8 +37,8 @@ func (v1 * Vector3) SubThis(v2 Vector3) {
 
 // Entrywise product (Hadamard product?)
 func (v1 Vector3) Mul(v2 Vector3) (r Vector3) {
-	for i := 0; i < len(v1); i++ { r[i] = v1[i]*v2[i] }
-	return
+	for i := range v1 { v1[i] *= v2[i] }
+	return v1
 }
 // In-place entrywise product (Hadamard product?)
 func (v1 *Vector3) MulThis(v2 Vector3) {
@@ -44,8 +46,8 @@ func (v1 *Vector3) MulThis(v2 Vector3) {
 }
 // Entrywise quotient (Hadamard quotient?)
 func (v1 Vector3) Div(v2 Vector3) (r Vector3) {
-	for i := 0; i < len(v1); i++ { r[i] = v1[i]/v2[i] }
-	return
+	for i := range v1 { v1[i] /= v2[i] }
+	return v1
 }
 // In-place entrywise quotient (Hadamard quotient?)
 func (v1 *Vector3) DivThis(v2 Vector3) {
@@ -55,9 +57,9 @@ func (v1 *Vector3) DivThis(v2 Vector3) {
 
 
 // Scalar multiplication
-func (v Vector3) ScalarMultiply(scalar float32) (r Vector3) {
-	for i := 0; i < len(v); i++ { r[i] = v[i]*scalar }
-	return
+func (v Vector3) ScalarMultiply(scalar float32) Vector3 {
+	for i := range v { v[i] *= scalar }
+	return v
 }
 // In place scalar multiplication
 func (v *Vector3) ScalarMultiplyThis(scalar float32) {
@@ -65,7 +67,7 @@ func (v *Vector3) ScalarMultiplyThis(scalar float32) {
 }
 
 func (v1 Vector3) Dot(v2 Vector3) (r float32) {
-	for i := 0; i < len(v1); i++ { r += v1[i]*v2[i] }
+	for i := range v1 { r += v1[i]*v2[i] }
 	return
 }
 
@@ -102,13 +104,18 @@ func (v *Vector3) NormalizeThis() {
 }
 
 
-func (m1 Vector3) Equals(q Vector3) bool {
-	return m1[0] == q[0] && m1[1] == q[1] && m1[2] == q[2]
+func (v1 Vector3) Equals(v2 Vector3) bool {
+	for i := range v1 {
+		if v1[i] != v2[i] {
+			return false
+		}
+	}
+	return true
 }
 
-func (a Vector3) ApproxEquals(b Vector3, ε float32) bool {
-	for i := 0; i < 3; i++ {
-		if Fabsf(a[i]-b[i]) > ε {
+func (v1 Vector3) ApproxEquals(v2 Vector3, ε float32) bool {
+	for i := range v1 {
+		if !ApproxEquals(v1[i], v2[i], ε) {
 			return false
 		}
 	}
