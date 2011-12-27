@@ -10,13 +10,9 @@ import "fmt"
 
 type Vector4 [4]floatType
 
-func MakeVector4V(v []floatType) Vector4 {
-	return Vector4{v[0], v[1], v[2], v[3]}
-}
-
-func MakeVector4(x, y, z, o floatType) Vector4 {
-	v := Vector4{x, y, z, o}
-	return v
+func MakeVector4(v ...floatType) (r Vector4) {
+	copy(r[:], v)
+	return
 }
 
 // return v1+v2 (won't modify any of them)
@@ -89,4 +85,3 @@ func (v Vector4) String() string {
 }
 
 // Tests to see if the difference between two matrices, element-wise, exceeds ε.
-

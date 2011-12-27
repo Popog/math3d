@@ -8,28 +8,30 @@ package math3d32
 
 import "fmt"
 
-type Matrix3 [3*3]floatType
-
+type Matrix3 [3 * 3]floatType
 
 // Constructors
-func MakeMatrix3(v []floatType, rowMajor bool) (r Matrix3) {
-	for i := range r { r[i] = v[i] }
+func MakeMatrix3(rowMajor bool, v ...floatType) (r Matrix3) {
+	copy(r[:], v)
 	// transform the data to OpenGl format
-	if !rowMajor { r.TransposeThis() }
+	if !rowMajor {
+		r.TransposeThis()
+	}
 	return
 }
-func (m * Matrix3) ZeroThis() {
+func (m *Matrix3) ZeroThis() {
 	*m = Matrix3{}
 }
 func MakeMatrix3Identity() (m Matrix3) {
 	const size = 3
-	for i := 0; i < size; i++ { m[i*size + i] = 1 }
+	for i := 0; i < size; i++ {
+		m[i*size+i] = 1
+	}
 	return
 }
 func (m *Matrix3) IdentityThis() {
 	*m = MakeMatrix3Identity()
 }
-
 
 // d8888b. d8888b.  .d88b.  d8888b. d88888b d8888b. d888888b db    db      d888b  d88888b d888888b d888888b d88888b d8888b. .d8888. 
 // 88  `8D 88  `8D .8P  Y8. 88  `8D 88'     88  `8D `~~88~~' `8b  d8'     88' Y8b 88'     `~~88~~' `~~88~~' 88'     88  `8D 88'  YP 
@@ -40,13 +42,17 @@ func (m *Matrix3) IdentityThis() {
 
 // Returns a row as a vector
 func (m Matrix3) GetRow(row int) (r Vector3) {
-	for i := range r { r[i] = m.At(row, i) }
+	for i := range r {
+		r[i] = m.At(row, i)
+	}
 	return
 }
 
 // Returns a column as a vector
 func (m Matrix3) GetCol(col int) (r Vector3) {
-	for i := range r { r[i] = m.At(i, col) }
+	for i := range r {
+		r[i] = m.At(i, col)
+	}
 	return
 }
 
@@ -85,7 +91,9 @@ func (m Matrix3) ApproxEquals(q Matrix3, ε floatType) bool {
 
 func (m Matrix3) Equals(q Matrix3) bool {
 	for i := range m {
-		if(m[i] != q[i]) { return false }
+		if m[i] != q[i] {
+			return false
+		}
 	}
 	return true
 	//return m[0] == q[0] && m[3] == q[3] && m[6] == q[6] && m[1] == q[1] && m[4] == q[4] && m[7] == q[7] && m[2] == q[2] && m[5] == q[5] && m[8] == q[8]
@@ -95,8 +103,6 @@ func (m Matrix3) String() string {
 	// output in octave format for easy testing
 	return fmt.Sprintf("[%.5f,%.5f,%.5f;%.5f,%.5f,%.5f;%.5f,%.5f,%.5f]", m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8])
 }
-
-
 
 func (m Matrix3) Inverse() (r Matrix3) {
 	d := 1.0 / m.Determinant()
@@ -121,19 +127,21 @@ func (m Matrix3) Transpose() Matrix3 {
 	const size = 3
 	for r := 0; r < size; r++ {
 		for c := 0; c < r; c++ {
-			m[r*size + c], m[c*size + r] = m[c*size + r], m[r*size + c]
+			m[r*size+c], m[c*size+r] = m[c*size+r], m[r*size+c]
 		}
 	}
 	return m
 }
 
 // Transposes the matrix in-place
-func (m * Matrix3) TransposeThis() {
+func (m *Matrix3) TransposeThis() {
 	*m = m.Transpose()
 }
 
 func (m Matrix3) ScalarMultiply(scalar floatType) Matrix3 {
-	for i := range m { m[i] *= scalar }
+	for i := range m {
+		m[i] *= scalar
+	}
 	return m
 }
 
@@ -143,35 +151,42 @@ func (m *Matrix3) ScalarMultiplyThis(scalar floatType) {
 
 // Mutiply this matrix with a column vector v, resulting in another column vector
 func (m Matrix3) MultiplyV(v Vector3) (r Vector3) {
-	for i := range r { r[i] = m.GetRow(i).Dot(v) }
+	for i := range r {
+		r[i] = m.GetRow(i).Dot(v)
+	}
 	return
 }
 
 // Returns m * q
 func (m Matrix3) RightMultiply(q Matrix3) (result Matrix3) {
 	const size = 3
-	/*for r := 0; r < size; r++ {
-		for c := 0; c < size; c++ {
-			result[r*size + c] = m.GetRow(r).Dot(q.GetCol(c))
-		}
-	}*/
 	for i := range result {
-		r, c := i / size, i % size
+		r, c := i/size, i%size
 		result[i] = m.GetRow(r).Dot(q.GetCol(c))
 	}
-	
-	/*result[0] = m.GetRow(0).Dot(q.GetCol(0))
+	return
+}
+func (m Matrix3) RightMultiply2(q Matrix3) (result Matrix3) {
+	const size = 3
+	for r := 0; r < size; r++ {
+		for c := 0; c < size; c++ {
+			result[r*size+c] = m.GetRow(r).Dot(q.GetCol(c))
+		}
+	}
+	return
+}
+func (m Matrix3) RightMultiply3(q Matrix3) (result Matrix3) {
+	result[0] = m.GetRow(0).Dot(q.GetCol(0))
 	result[1] = m.GetRow(0).Dot(q.GetCol(1))
 	result[2] = m.GetRow(0).Dot(q.GetCol(2))
-	            
+
 	result[3] = m.GetRow(1).Dot(q.GetCol(0))
 	result[4] = m.GetRow(1).Dot(q.GetCol(1))
 	result[5] = m.GetRow(1).Dot(q.GetCol(2))
-	            
+
 	result[6] = m.GetRow(2).Dot(q.GetCol(0))
 	result[7] = m.GetRow(2).Dot(q.GetCol(1))
-	result[8] = m.GetRow(2).Dot(q.GetCol(2))*/
-	
+	result[8] = m.GetRow(2).Dot(q.GetCol(2))
 	return
 }
 
@@ -180,7 +195,7 @@ func (m Matrix3) LeftMultiply(q Matrix3) (result Matrix3) {
 	const size = 3
 	for r := 0; r < size; r++ {
 		for c := 0; c < size; c++ {
-			result[r*size + c] = q.GetRow(r).Dot(m.GetCol(c))
+			result[r*size+c] = q.GetRow(r).Dot(m.GetCol(c))
 		}
 	}
 	return
@@ -205,5 +220,3 @@ func (m1 Matrix3) Orthogonalized() Matrix3{
 	return m
 }
 */
-
-

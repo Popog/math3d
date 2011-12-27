@@ -10,34 +10,40 @@ import "fmt"
 
 type Vector3 [3]float32
 
-func MakeVector3(v []float32) (r Vector3) {
-	for i := range r { r[i] = v[i] }
+func MakeVector3(v ...float32) (r Vector3) {
+	copy(r[:], v)
 	return
 }
 
 // Entrywise addition
 func (v1 Vector3) Add(v2 Vector3) Vector3 {
-	for i := range v1 { v1[i] += v2[i] }
+	for i := range v1 {
+		v1[i] += v2[i]
+	}
 	return v1
 }
 // In-place entrywise addition
-func (v1 * Vector3) AddThis(v2 Vector3) {
+func (v1 *Vector3) AddThis(v2 Vector3) {
 	*v1 = v1.Add(v2)
 }
 
 // Entrywise subtraction
 func (v1 Vector3) Sub(v2 Vector3) Vector3 {
-	for i := range v1 { v1[i] -= v2[i] }
+	for i := range v1 {
+		v1[i] -= v2[i]
+	}
 	return v1
 }
 // In-place entrywise subtraction
-func (v1 * Vector3) SubThis(v2 Vector3) {
+func (v1 *Vector3) SubThis(v2 Vector3) {
 	*v1 = v1.Sub(v2)
 }
 
 // Entrywise product (Hadamard product?)
 func (v1 Vector3) Mul(v2 Vector3) (r Vector3) {
-	for i := range v1 { v1[i] *= v2[i] }
+	for i := range v1 {
+		v1[i] *= v2[i]
+	}
 	return v1
 }
 // In-place entrywise product (Hadamard product?)
@@ -46,7 +52,9 @@ func (v1 *Vector3) MulThis(v2 Vector3) {
 }
 // Entrywise quotient (Hadamard quotient?)
 func (v1 Vector3) Div(v2 Vector3) (r Vector3) {
-	for i := range v1 { v1[i] /= v2[i] }
+	for i := range v1 {
+		v1[i] /= v2[i]
+	}
 	return v1
 }
 // In-place entrywise quotient (Hadamard quotient?)
@@ -54,11 +62,11 @@ func (v1 *Vector3) DivThis(v2 Vector3) {
 	*v1 = v1.Div(v2)
 }
 
-
-
 // Scalar multiplication
 func (v Vector3) ScalarMultiply(scalar float32) Vector3 {
-	for i := range v { v[i] *= scalar }
+	for i := range v {
+		v[i] *= scalar
+	}
 	return v
 }
 // In place scalar multiplication
@@ -67,7 +75,9 @@ func (v *Vector3) ScalarMultiplyThis(scalar float32) {
 }
 
 func (v1 Vector3) Dot(v2 Vector3) (r float32) {
-	for i := range v1 { r += v1[i]*v2[i] }
+	for i := range v1 {
+		r += v1[i] * v2[i]
+	}
 	return
 }
 
@@ -93,7 +103,6 @@ func (v0 Vector3) Distance(v1 Vector3) float32 {
 	return Sqrtf(v0.DistanceSq(v1))
 }
 
-
 // Normalize will modify this vector
 func (v Vector3) Normalize() Vector3 {
 	return v.ScalarMultiply(1.0 / v.Length())
@@ -102,7 +111,6 @@ func (v Vector3) Normalize() Vector3 {
 func (v *Vector3) NormalizeThis() {
 	*v = v.Normalize()
 }
-
 
 func (v1 Vector3) Equals(v2 Vector3) bool {
 	for i := range v1 {

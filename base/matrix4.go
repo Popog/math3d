@@ -9,13 +9,15 @@ package math3d32
 import "fmt"
 
 // This is a 4x4 matrix of floatType, stored in row major
-type Matrix4 [4*4]floatType
+type Matrix4 [4 * 4]floatType
 
 // Make a new matrix from the array
-func MakeMatrix4V(v []floatType, rowMajor bool) (r Matrix4) {
-	for i := 0; i < len(r); i++ { r[i] = v[i] }
+func MakeMatrix4(rowMajor bool, v ...floatType) (r Matrix4) {
+	copy(r[:], v)
 	// transform the data to OpenGl format
-	if !rowMajor { r.TransposeThis() }
+	if !rowMajor {
+		r.TransposeThis()
+	}
 	return
 }
 
@@ -27,7 +29,9 @@ func (m *Matrix4) ZeroThis() {
 // Create a new identity matrix
 func MakeMatrix4Identity() (m Matrix4) {
 	const size = 3
-	for i := 0; i < size; i++ { m[i*size + i] = 1 }
+	for i := 0; i < size; i++ {
+		m[i*size+i] = 1
+	}
 	return
 }
 
@@ -50,7 +54,6 @@ func MakeRotationMatrix(look, tmpUp Vector3) Matrix4 {
 		0., 0., 0., 1}
 }
 
-
 // d8888b. d8888b.  .d88b.  d8888b. d88888b d8888b. d888888b db    db      d888b  d88888b d888888b d888888b d88888b d8888b. .d8888. 
 // 88  `8D 88  `8D .8P  Y8. 88  `8D 88'     88  `8D `~~88~~' `8b  d8'     88' Y8b 88'     `~~88~~' `~~88~~' 88'     88  `8D 88'  YP 
 // 88oodD' 88oobY' 88    88 88oodD' 88ooooo 88oobY'    88     `8bd8'      88      88ooooo    88       88    88ooooo 88oobY' `8bo.   
@@ -60,13 +63,17 @@ func MakeRotationMatrix(look, tmpUp Vector3) Matrix4 {
 
 // Returns a row as a vector
 func (m Matrix4) GetRow(row int) (r Vector4) {
-	for i := 0; i < len(r); i++ { r[i] = m.At(row, i) }
+	for i := 0; i < len(r); i++ {
+		r[i] = m.At(row, i)
+	}
 	return
 }
 
 // Returns a column as a vector
 func (m Matrix4) GetCol(col int) (r Vector4) {
-	for i := 0; i < len(r); i++ { r[i] = m.At(i, col) }
+	for i := 0; i < len(r); i++ {
+		r[i] = m.At(i, col)
+	}
 	return
 }
 
@@ -119,10 +126,12 @@ func (m Matrix4) ApproxEquals(q Matrix4, ε floatType) bool {
 
 func (m Matrix4) Equal(q Matrix4) bool {
 	for i := 0; i < len(m); i++ {
-		if(m[i] != q[i]) { return false }
+		if m[i] != q[i] {
+			return false
+		}
 	}
 	return true
-	
+
 	// return m[0] == q[0] && m[1] == q[1] && m[2] == q[2] && m[3] == q[3] && m[4] == q[4] && m[5] == q[5] &&
 	// 	m[6] == q[6] && m[7] == q[7] && m[8] == q[8] && m[9] == q[9] && m[10] == q[10] && m[11] == q[11] &&
 	// 	m[12] == q[12] && m[13] == q[13] && m[14] == q[14] && m[15] == q[15]
@@ -131,47 +140,45 @@ func (m Matrix4) Equal(q Matrix4) bool {
 func (m Matrix4) String() string {
 	// output in octave format for easy testing
 	return fmt.Sprintf("[%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f;%.5f,%.5f,%.5f,%.5f]",
-		m[ 0], m[ 1], m[ 2], m[3],
-		m[ 4], m[ 5], m[ 6], m[7],
-		m[ 8], m[ 9], m[10], m[11],
+		m[0], m[1], m[2], m[3],
+		m[4], m[5], m[6], m[7],
+		m[8], m[9], m[10], m[11],
 		m[12], m[13], m[14], m[15])
 }
 
-
-
 func (m Matrix4) Inverse() Matrix4 {
-	a0 := m[ 0]*m[ 5] - m[ 4]*m[ 1]
-	a1 := m[ 0]*m[ 9] - m[ 8]*m[ 1]
-	a2 := m[ 0]*m[13] - m[12]*m[ 1]
-	a3 := m[ 4]*m[ 9] - m[ 8]*m[ 5]
-	a4 := m[ 4]*m[13] - m[12]*m[ 5]
-	a5 := m[ 8]*m[13] - m[12]*m[ 9]
-	b0 := m[ 2]*m[ 7] - m[ 6]*m[ 3]
-	b1 := m[ 2]*m[11] - m[10]*m[ 3]
-	b2 := m[ 2]*m[15] - m[14]*m[ 3]
-	b3 := m[ 6]*m[11] - m[10]*m[ 7]
-	b4 := m[ 6]*m[15] - m[14]*m[ 7]
+	a0 := m[0]*m[5] - m[4]*m[1]
+	a1 := m[0]*m[9] - m[8]*m[1]
+	a2 := m[0]*m[13] - m[12]*m[1]
+	a3 := m[4]*m[9] - m[8]*m[5]
+	a4 := m[4]*m[13] - m[12]*m[5]
+	a5 := m[8]*m[13] - m[12]*m[9]
+	b0 := m[2]*m[7] - m[6]*m[3]
+	b1 := m[2]*m[11] - m[10]*m[3]
+	b2 := m[2]*m[15] - m[14]*m[3]
+	b3 := m[6]*m[11] - m[10]*m[7]
+	b4 := m[6]*m[15] - m[14]*m[7]
 	b5 := m[10]*m[15] - m[14]*m[11]
 	det := a0*b5 - a1*b4 + a2*b3 + a3*b2 - a4*b1 + a5*b0
-	
+
 	id := 1. / det
 	return Matrix4{
-		id * (+m[5]*b5 - m[ 9]*b4 + m[13]*b3),
-		id * (-m[1]*b5 + m[ 9]*b2 - m[13]*b1),
-		id * (+m[1]*b4 - m[ 5]*b2 + m[13]*b0),
-		id * (-m[1]*b3 + m[ 5]*b1 - m[ 9]*b0),
-		id * (-m[4]*b5 + m[ 8]*b4 - m[12]*b3),
-		id * (+m[0]*b5 - m[ 8]*b2 + m[12]*b1),
-		id * (-m[0]*b4 + m[ 4]*b2 - m[12]*b0),
-		id * (+m[0]*b3 - m[ 4]*b1 + m[ 8]*b0),
+		id * (+m[5]*b5 - m[9]*b4 + m[13]*b3),
+		id * (-m[1]*b5 + m[9]*b2 - m[13]*b1),
+		id * (+m[1]*b4 - m[5]*b2 + m[13]*b0),
+		id * (-m[1]*b3 + m[5]*b1 - m[9]*b0),
+		id * (-m[4]*b5 + m[8]*b4 - m[12]*b3),
+		id * (+m[0]*b5 - m[8]*b2 + m[12]*b1),
+		id * (-m[0]*b4 + m[4]*b2 - m[12]*b0),
+		id * (+m[0]*b3 - m[4]*b1 + m[8]*b0),
 		id * (+m[7]*a5 - m[11]*a4 + m[15]*a3),
 		id * (-m[3]*a5 + m[11]*a2 - m[15]*a1),
-		id * (+m[3]*a4 - m[ 7]*a2 + m[15]*a0),
-		id * (-m[3]*a3 + m[ 7]*a1 - m[11]*a0),
+		id * (+m[3]*a4 - m[7]*a2 + m[15]*a0),
+		id * (-m[3]*a3 + m[7]*a1 - m[11]*a0),
 		id * (-m[6]*a5 + m[10]*a4 - m[14]*a3),
 		id * (+m[2]*a5 - m[10]*a2 + m[14]*a1),
-		id * (-m[2]*a4 + m[ 6]*a2 - m[14]*a0),
-		id * (+m[2]*a3 - m[ 6]*a1 + m[10]*a0)}
+		id * (-m[2]*a4 + m[6]*a2 - m[14]*a0),
+		id * (+m[2]*a3 - m[6]*a1 + m[10]*a0)}
 }
 
 func (m *Matrix4) InverseThis() {
@@ -183,7 +190,7 @@ func (m Matrix4) Transpose() Matrix4 {
 	const size = 4
 	for r := 0; r < size; r++ {
 		for c := 0; c < r; c++ {
-			m[r*size + c], m[c*size + r] = m[c*size + r], m[r*size + c]
+			m[r*size+c], m[c*size+r] = m[c*size+r], m[r*size+c]
 		}
 	}
 	return m
@@ -195,7 +202,9 @@ func (m *Matrix4) TransposeThis() {
 }
 
 func (m Matrix4) ScalarMultiply(scalar floatType) Matrix4 {
-	for i := 0; i < len(m); i++ { m[i] *= scalar }
+	for i := 0; i < len(m); i++ {
+		m[i] *= scalar
+	}
 	return m
 }
 
@@ -205,7 +214,9 @@ func (m *Matrix4) ScalarMultiplyThis(scalar floatType) {
 
 // Mutiply this matrix with a column vector v, resulting in another column vector
 func (m Matrix4) MultiplyV(v Vector4) (r Vector4) {
-	for i := 0; i < len(r); i++ { r[i] = m.GetRow(i).Dot(v) }
+	for i := 0; i < len(r); i++ {
+		r[i] = m.GetRow(i).Dot(v)
+	}
 	return
 }
 
@@ -214,7 +225,7 @@ func (m Matrix4) RightMultiply(q Matrix4) (result Matrix4) {
 	const size = 4
 	for r := 0; r < size; r++ {
 		for c := 0; c < size; c++ {
-			result[r*size + c] = m.GetRow(r).Dot(q.GetCol(c))
+			result[r*size+c] = m.GetRow(r).Dot(q.GetCol(c))
 		}
 	}
 	return
@@ -225,15 +236,16 @@ func (m Matrix4) LeftMultiply(q Matrix4) (result Matrix4) {
 	const size = 4
 	for r := 0; r < size; r++ {
 		for c := 0; c < size; c++ {
-			result[r*size + c] = q.GetRow(r).Dot(m.GetCol(c))
+			result[r*size+c] = q.GetRow(r).Dot(m.GetCol(c))
 		}
 	}
 	return
 }
 
-
 func (m Matrix4) Add(q Matrix4) (r Matrix4) {
-	for i := 0; i < len(m); i++ { r[i] = m[i] + q[i] }
+	for i := 0; i < len(m); i++ {
+		r[i] = m[i] + q[i]
+	}
 	return
 }
 
@@ -242,15 +254,15 @@ func (m *Matrix4) AddThis(q Matrix4) {
 }
 
 func (m Matrix4) Sub(q Matrix4) (r Matrix4) {
-	for i := 0; i < len(m); i++ { r[i] = m[i] - q[i] }
+	for i := 0; i < len(m); i++ {
+		r[i] = m[i] - q[i]
+	}
 	return
 }
 
 func (m *Matrix4) SubThis(q Matrix4) {
 	*m = m.Sub(q)
 }
-
-
 
 /*
 // Orthogonalize will modify this matrix (fixme)
@@ -279,7 +291,7 @@ func (m Matrix4) ToQuaternion() Quaternion {
 	// article "HQuaternion Calculus and Fast Animation".
 	toQuaternionNext := []int{1, 2, 0}
 
-	q := Quaternion{0,0,0,0}
+	q := Quaternion{0, 0, 0, 0}
 	//fmt.Println("q = ", q)
 	trace := m[0] + m[5] + m[10]
 	var root floatType

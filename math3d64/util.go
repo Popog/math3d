@@ -20,8 +20,6 @@ const TwoPi float64 = float64(math.Pi * 2.)
 const PiHalf float64 = float64(math.Pi * .5)
 const Epsilon float64 = 0.000001
 
-
-
 // these functions only exists so that we don't have to 
 // use ugly float32() and float64() convertions all over the math3d64 code 
 func Sinf(a float64) float64 {
@@ -49,8 +47,6 @@ func Atanf(a float64) float64 {
 func Atan2f(y, x float64) float64 {
 	return float64(math.Atan2(float64(x), float64(y)))
 }
-
-
 
 func Fabsf(a float64) float64 {
 	return float64(math.Abs(float64(a)))
@@ -143,25 +139,34 @@ func ApproxEquals(f1, f2, ε float64) bool {
 }
 
 func ApproxEquals2(f1, f2, ε float64) bool {
-	return Fabsf(f1 - f2) < ε * Max(1.0, Max(Fabsf(f1), Fabsf(f2)))
+	return Fabsf(f1-f2) < ε*Max(1.0, Max(Fabsf(f1), Fabsf(f2)))
 }
 
 func AlmostEqual2sComplement(A, B float64, maxUlps uint64) bool {
 	// Make sure maxUlps is non-negative and small enough that the
 	// default NAN won't compare as equal to anything.
-	if(maxUlps >= 1 << (mantissaSize-1)) { panic("maxUlps too big") }
-	
+	if maxUlps >= 1<<(mantissaSize-1) {
+		panic("maxUlps too big")
+	}
+
 	aInt := floatBits(A)
 	// Make aInt lexicographically ordered as a twos-complement int
-	if aInt < 0 { aInt = minInt - aInt }
-	
+	if aInt < 0 {
+		aInt = minInt - aInt
+	}
+
 	// Make bInt lexicographically ordered as a twos-complement int
 	bInt := floatBits(B)
-	if bInt < 0 { bInt = minInt - bInt }
-	
+	if bInt < 0 {
+		bInt = minInt - bInt
+	}
+
 	var intDiff int64
-	if bInt < aInt { intDiff = aInt - bInt
-	} else         { intDiff = bInt - aInt }
-	
+	if bInt < aInt {
+		intDiff = aInt - bInt
+	} else {
+		intDiff = bInt - aInt
+	}
+
 	return intDiff <= int64(maxUlps)
 }

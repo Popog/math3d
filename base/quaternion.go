@@ -224,7 +224,6 @@ func (m Quaternion) NLerp(t floatType, a, b Quaternion) Quaternion {
 	return m
 }
 
-
 func (m Quaternion) String() string {
 	return fmt.Sprintf("[%.5f,%.5f,%.5f,%.5f]", m[0], m[1], m[2], m[3])
 }

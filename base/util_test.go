@@ -13,7 +13,7 @@ func BenchmarkDummy(b *testing.B) {
 	// const size = 3
 	// r := rand.New(rand.NewSource(time.Nanoseconds()))
 	// data := make([]float32, size*size)
-	
+
 	// b.StartTimer()
 	var count int
 	for i := 0; i < b.N; i++ {
@@ -26,7 +26,7 @@ func BenchmarkApproxEquals(b *testing.B) {
 	// const size = 3
 	// r := rand.New(rand.NewSource(time.Nanoseconds()))
 	// data := make([]float32, size*size)
-	
+
 	// b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		ApproxEquals(1, 1.5, 0.5)
@@ -38,7 +38,7 @@ func BenchmarkApproxEquals2(b *testing.B) {
 	// const size = 3
 	// r := rand.New(rand.NewSource(time.Nanoseconds()))
 	// data := make([]float32, size*size)
-	
+
 	// b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		ApproxEquals2(1, 1.5, 0.5)

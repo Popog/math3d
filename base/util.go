@@ -20,8 +20,6 @@ const TwoPi floatType = floatType(math.Pi * 2.)
 const PiHalf floatType = floatType(math.Pi * .5)
 const Epsilon floatType = 0.000001
 
-
-
 // these functions only exists so that we don't have to 
 // use ugly float32() and float64() convertions all over the math3d32 code 
 func Sinf(a floatType) floatType {
@@ -49,8 +47,6 @@ func Atanf(a floatType) floatType {
 func Atan2f(y, x floatType) floatType {
 	return floatType(math.Atan2(float64(x), float64(y)))
 }
-
-
 
 func Fabsf(a floatType) floatType {
 	return floatType(math.Abs(float64(a)))
@@ -143,25 +139,34 @@ func ApproxEquals(f1, f2, ε floatType) bool {
 }
 
 func ApproxEquals2(f1, f2, ε floatType) bool {
-	return Fabsf(f1 - f2) < ε * Max(1.0, Max(Fabsf(f1), Fabsf(f2)))
+	return Fabsf(f1-f2) < ε*Max(1.0, Max(Fabsf(f1), Fabsf(f2)))
 }
 
 func AlmostEqual2sComplement(A, B floatType, maxUlps uintType) bool {
 	// Make sure maxUlps is non-negative and small enough that the
 	// default NAN won't compare as equal to anything.
-	if(maxUlps >= 1 << (mantissaSize-1)) { panic("maxUlps too big") }
-	
+	if maxUlps >= 1<<(mantissaSize-1) {
+		panic("maxUlps too big")
+	}
+
 	aInt := floatBits(A)
 	// Make aInt lexicographically ordered as a twos-complement int
-	if aInt < 0 { aInt = minInt - aInt }
-	
+	if aInt < 0 {
+		aInt = minInt - aInt
+	}
+
 	// Make bInt lexicographically ordered as a twos-complement int
 	bInt := floatBits(B)
-	if bInt < 0 { bInt = minInt - bInt }
-	
+	if bInt < 0 {
+		bInt = minInt - bInt
+	}
+
 	var intDiff intType
-	if bInt < aInt { intDiff = aInt - bInt
-	} else         { intDiff = bInt - aInt }
-	
+	if bInt < aInt {
+		intDiff = aInt - bInt
+	} else {
+		intDiff = bInt - aInt
+	}
+
 	return intDiff <= intType(maxUlps)
 }

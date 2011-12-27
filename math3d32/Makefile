@@ -6,6 +6,7 @@ include $(GOROOT)/src/Make.inc
 
 TARG=math3d/math3d32
 GOFILES=\
+	vector2.go\
 	vector3.go\
 	vector4.go\
 	matrix3.go\
